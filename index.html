@@ -21,7 +21,7 @@
  * ===================================================================== */
 const CONFIG = {
 
-  build: 'labs-v5',   // shown in the footer — bump on every upload
+  build: 'labs-v7',   // shown in the footer — bump on every upload
 
   /* ─── Backend + photo uploads ───────────────────────────────────── */
   backend: {
@@ -318,7 +318,7 @@ const CONFIG = {
       missingItem: 'Please fill in the {item} name and service for each {item}.',
       missingName: 'Please fill in your name.',
       needContact: 'Please leave an email or phone number so we can reach you.',
-      needTerms:   'Please read the Customer Authorization above and click I AGREE before submitting.',
+      needTerms:   'Please read the Terms &amp; Conditions above and click I AGREE before submitting.',
       uploading:   'Please wait for your photos to finish uploading before submitting.',
       successEmail:'Submitted {count}! Your reference number is <b>{ref}</b>. A confirmation email is on its way to {email} — please don’t ship your cards until PH contacts you. You can check progress anytime in Track Your Submission below.',
       successPhone:'Submitted {count}! Your reference number is <b>{ref}</b> — save it. PH will follow up by phone; please don’t ship your cards until he contacts you.',
@@ -331,25 +331,271 @@ const CONFIG = {
     }
   },
 
-  /* Customer authorization from PH's Card Submission Form. TODO: add full Terms & Conditions if PH has them. */
+  /* Terms & Conditions and Waiver of Liability — modeled on Restored Rarity’s terms, adapted for PH (flat pricing, no value surcharges, show drop-off).
+     Drafted Oct 2026 for PH to review; not legal advice. PH to confirm: 30-day damage-memory window, 7-day claims window, $5/card/month storage after 30 days, 90-day abandonment. */
   terms: {
-    title: 'Customer Authorization',
-    effectiveDate: 'TODO',
-    intro: [
-      'Please read before submitting your cards.'
+    "title": "Terms &amp; Conditions and Waiver of Liability",
+    "effectiveDate": "October 8, 2026",
+    "intro": [
+      "Please read carefully before submitting your request.",
+      "These Terms &amp; Conditions and Waiver of Liability (“Terms”) are an agreement between you and {business}, the card care and restoration service of PH Collectibles HTX, Houston, Texas (“we,” “us”). They apply to every card you submit, whether shipped or handed off at a show or meetup.",
+      "By clicking “I Agree” below and submitting a service request to {business}, you confirm that you have read, understand, and agree to these Terms."
     ],
-    sections: [
-      { h: 'Customer Authorization', p: [
-        'I authorize PH Restoration Labs to evaluate and perform only the approved card-care/restoration work.',
-        'Results vary by card and condition. Cleaning, polishing, or restoration does not guarantee a condition or grading improvement.',
-        'Third-party grading companies may identify repairs or alterations that can affect grading eligibility.' ] }
+    "sections": [
+      {
+        "h": "1. Authorization to Perform Services",
+        "p": [
+          "By submitting cards to {business}, you represent that you are the lawful owner of the cards or are otherwise authorized by the owner to request services, and that no submitted card is stolen, counterfeit, or the subject of an ownership dispute.",
+          "You confirm that you are at least 18 years old, or that a parent or legal guardian is submitting on your behalf and agrees to these Terms.",
+          "You authorize {business} to perform the cleaning, evaluation, polishing, pressing, and/or restoration services that you approve for your submission.",
+          "Depending on the selected service and the condition of the card, services may include surface cleaning, residue and grime removal, light polishing, scratch and scuff reduction, flattening and pressing, warp and bend correction, crease and dent reduction, and other card-care techniques reasonably necessary to perform the approved service."
+        ]
+      },
+      {
+        "h": "2. Inherent Risks of Card Restoration",
+        "p": [
+          "Trading cards are delicate, layered collectibles, often decades old. Cleaning, pressing, or restoring a card, especially an already damaged card, involves inherent risk.",
+          "Even when reasonable care is exercised, services may result in unintended changes to a card’s surface, foil or holo layer, gloss, texture, printing, color, edges, corners, layers, adhesives, or other materials.",
+          "Pre-existing, underlying, or previously hidden damage (including prior repairs, weakened card stock, and print defects) may also become more apparent during or after service.",
+          "Some changes may be an unavoidable consequence of attempting to correct existing damage and do not necessarily indicate that a service was improperly performed.",
+          "<strong>By authorizing services, you acknowledge and accept the inherent risks reasonably associated with the approved cleaning, pressing, or restoration procedures, and you submit cards at your own risk.</strong>",
+          "Nothing in these Terms is intended to waive or limit liability that cannot legally be waived or limited under applicable law."
+        ]
+      },
+      {
+        "h": "3. Restoration, Not Alteration",
+        "p": [
+          "The objective of {business} is to clean, restore, and preserve the original card while achieving the best result the card will realistically allow.",
+          "Restoration does not mean manufacturing a perfect card, and {business} cannot guarantee that all evidence of previous damage will disappear.",
+          "A pressed crease or bend, for example, may still leave surface scarring, foil disruption, rubs, texture changes, or other visible evidence of the original damage even when it has been substantially improved. Some conditions, such as paper loss, deep staining, water damage, and heavy whitening, may improve only partially or not at all."
+        ]
+      },
+      {
+        "h": "4. Damage Memory &amp; Long-Term Results",
+        "p": [
+          "Trading cards are composed of layered materials that may retain “damage memory.”",
+          "In some cases, a crease, bend, indentation, warp, lift, or other previously treated defect may partially or faintly reappear days, weeks, or months after service.",
+          "This may occur due to the severity of the original damage, card construction, manufacturing processes, adhesive quality, environmental conditions, storage conditions, temperature, humidity, or other factors.",
+          "The reappearance of a defect does not necessarily indicate that the service was improperly performed.",
+          "If a treated defect resurfaces within 30 days of the card’s return, contact {business} so the card can be evaluated. When appropriate, and at {business}’s discretion, an additional round of the same service may be performed at no additional service charge.",
+          "The customer remains responsible for applicable shipping costs unless otherwise agreed."
+        ]
+      },
+      {
+        "h": "5. No Guarantee of Restoration Results",
+        "p": [
+          "Specific results are not guaranteed.",
+          "Every card, print run, material, and type of damage may respond differently. Photographs and customer descriptions may also fail to reveal the full extent of a card’s condition.",
+          "{business} will use reasonable care and judgment in performing approved services, but complete removal or correction of any defect cannot be guaranteed.",
+          "Some cards may require multiple rounds, different techniques, or extended drying, pressing, and stabilization periods to achieve the best result realistically possible."
+        ]
+      },
+      {
+        "h": "6. Grading &amp; No Guarantee of Grade",
+        "p": [
+          "Cleaning, restoration, pre-submission preparation, or any inspection does not guarantee any particular grade or grading outcome.",
+          "Any grade estimate or opinion provided by {business} represents an opinion based on the observable condition of the card at the time and is not a promise.",
+          "Final grading, authentication, designation, and acceptance decisions are made solely by the applicable third-party grading company.",
+          "{business} is not responsible if a card receives a grade lower than anticipated, does not receive a numerical grade, is rejected or declined, or receives an altered, restored, authentic-only, or similar designation, and is not responsible for any grading fees you pay.",
+          "You acknowledge that cleaning, pressing, or restoration may affect how a third-party grading company evaluates, authenticates, labels, or grades a card.",
+          "{business} is not affiliated with PSA, TAG, CGC, BGS, SGC, or any other third-party grading company."
+        ]
+      },
+      {
+        "h": "7. Honest Disclosure When Selling",
+        "p": [
+          "You agree not to use {business}’s services to misrepresent any card. When you sell, trade, or consign a card that has been serviced, you are responsible for disclosing the work performed wherever the law, the marketplace, or the buyer requires it.",
+          "You, not {business}, are responsible for how you describe, list, and sell your cards."
+        ]
+      },
+      {
+        "h": "8. Cards in Graded Holders",
+        "p": [
+          "If a card is submitted in a graded holder (“slab”) or sealed case and the approved service requires removing it, you authorize its removal.",
+          "{business} is not responsible for the holder, label, certification number, or prior grade, all of which are lost when a card is removed from its holder."
+        ]
+      },
+      {
+        "h": "9. Declared Card Values &amp; Verification",
+        "p": [
+          "The value you enter on the submission form is your good-faith estimate of the card’s current market value in its present condition, before any service.",
+          "All declared values are subject to verification by {business}. If a declared value does not reasonably reflect the card’s current market value, {business} may ask you to correct it, adjust its handling or shipping requirements, or decline the card.",
+          "Declared values are used for handling, shipping, and insurance decisions. They do not establish an agreed replacement value, guaranteed resale value, or guaranteed post-service value, and <strong>the amount payable in the event of loss or damage will never exceed the declared value you provided</strong> (see Section 23)."
+        ]
+      },
+      {
+        "h": "10. High-Value Cards",
+        "p": [
+          "{business} reserves the right to individually review higher-value cards before accepting them for service.",
+          "Additional documentation or precautions may be required before a high-value card is accepted, including photographs, proof of value, specialized packaging, insured or signature-required shipping, or other reasonable security measures.",
+          "{business} reserves the right to decline any card or submission based on card value, condition, risk, shipping considerations, or other reasonable business considerations. If a card is declined before work begins, it is returned with no service charge (return shipping still applies).",
+          "<strong>Submission of a service request does not constitute acceptance of a card by {business}.</strong>"
+        ]
+      },
+      {
+        "h": "11. Submission Requests &amp; When to Ship",
+        "p": [
+          "Submitting a service request does not mean you should immediately ship your cards.",
+          "{business} coordinates incoming submissions so cards can be properly received, documented, inspected, and serviced. After submitting a request, you will receive confirmation that it has been received. {business} will then review your submission and contact you directly.",
+          "<strong>DO NOT SHIP CARDS UNTIL {BUSINESS} HAS CONTACTED YOU AND SPECIFICALLY AUTHORIZED YOU TO DO SO.</strong>",
+          "Cards sent before authorization may arrive before we are prepared to receive or process the submission, and are sent entirely at your own risk."
+        ]
+      },
+      {
+        "h": "12. Initial Communication &amp; Service Confirmation",
+        "p": [
+          "Before you ship or hand off your cards, we will communicate with you to confirm relevant submission details.",
+          "These may include requested services, card information, declared values, estimated pricing, estimated turnaround time, drop-off or shipping method and costs, packaging instructions, and any questions or concerns about the requested work.",
+          "Material pricing or service changes identified during this process will be communicated before you ship or drop off your cards."
+        ]
+      },
+      {
+        "h": "13. In-Person Drop-Off &amp; Pickup",
+        "p": [
+          "Cards may be dropped off in person at a show or an arranged Houston meetup. Please bring your reference number and have each card in a penny sleeve and top loader.",
+          "{business}’s responsibility begins once your cards have been counted with you and matched to your reference number, and ends when they are handed back to you or to a person you authorize.",
+          "We may ask for your reference number or identification at pickup and may refuse to release cards to anyone we cannot verify."
+        ]
+      },
+      {
+        "h": "14. Turnaround Times",
+        "p": [
+          "Service timelines vary from submission to submission.",
+          "The time required depends on factors including current submission volume, number of cards, card construction and condition, type and severity of damage, drying, pressing, or stabilization requirements, show schedules, and whether multiple rounds are necessary.",
+          "An estimated turnaround time will be communicated before you ship or drop off your cards. Turnaround times are estimates, not guaranteed completion dates, and delays do not entitle you to a refund or compensation.",
+          "Quality and stability take priority over rushing a card through the process. If circumstances materially change the anticipated timeline, we will make reasonable efforts to let you know."
+        ]
+      },
+      {
+        "h": "15. Shipping Costs",
+        "p": [
+          "Shipping costs are passed through to the customer and are separate from service charges unless otherwise expressly agreed.",
+          "Once a submission has been reviewed and authorized for shipment, we will coordinate shipping with you and provide the appropriate instructions. Applicable shipping costs and details will be communicated before shipment.",
+          "Return shipping and any shipping insurance are also the customer’s responsibility unless otherwise expressly agreed. We strongly recommend insured return shipping for any card of significant value; if you decline insurance, you accept the risk of uninsured loss.",
+          "Please make sure your shipping address is correct. We are not responsible for packages sent to an incorrect address you provided."
+        ]
+      },
+      {
+        "h": "16. Packaging Your Cards",
+        "p": [
+          "You are responsible for appropriately protecting your cards for shipment or drop-off and for following the packaging instructions we provide.",
+          "Cards should be protected using generally accepted collectible-card practices, such as penny sleeves, top loaders or semi-rigid holders, rigid support, adequate cushioning, and a sturdy container designed to minimize movement, bending, moisture exposure, and impact."
+        ]
+      },
+      {
+        "h": "17. Third-Party Shipping Carriers",
+        "p": [
+          "USPS, UPS, FedEx, and other shipping providers are independent third-party carriers outside {business}’s control.",
+          "To the fullest extent permitted by applicable law, {business} is not responsible for delays, theft, loss, misdelivery, or damage caused by a third-party carrier while a shipment is in that carrier’s possession, including shipments to us and return shipments after they are handed to the carrier. We will provide tracking and reasonably assist with any carrier claim.",
+          "Our responsibility for shipped cards begins only when a package is delivered to us, opened, and its contents checked against your submission. If a package arrives damaged or its contents do not match, we will document it with photos and contact you before doing any work."
+        ]
+      },
+      {
+        "h": "18. Physical Inspection After Arrival",
+        "p": [
+          "Photographs and descriptions cannot always reveal every defect.",
+          "Once cards arrive, they will be documented, photographed, and physically inspected. These intake records serve as the record of each card’s condition on arrival and will be used to resolve any question about pre-existing damage.",
+          "Inspection may show that a card’s actual condition calls for a different service level from what was originally requested. If so, or if anything would materially change the approved service or result in additional charges, you will be contacted before that additional work is performed."
+        ]
+      },
+      {
+        "h": "19. Additional Work &amp; Customer Approval",
+        "p": [
+          "We will not automatically perform additional chargeable work outside the agreed scope simply because additional damage is discovered.",
+          "If additional work is recommended, we will explain what was discovered, the recommended work, and any change in price. Your approval will be obtained before any additional chargeable work is performed.",
+          "Methods, materials, and techniques used to perform approved services are chosen at our professional discretion."
+        ]
+      },
+      {
+        "h": "20. Payment",
+        "p": [
+          "You are responsible for all approved service charges, shipping and insurance charges, and any other charges specifically agreed upon during the submission process. Any total shown by the website or calculator is an estimate; final pricing is confirmed after inspection.",
+          "<strong>Payment must be completed according to the payment instructions provided before cards are returned, picked up, or shipped</strong>, unless another arrangement has been agreed upon in writing.",
+          "{business} may hold serviced cards until all charges are paid in full. To the extent permitted by Texas law, you grant {business} a possessory lien on serviced cards for all unpaid service, shipping, and storage charges.",
+          "Referral codes and discounts apply only to service charges, cannot be combined unless stated otherwise, and have no cash value."
+        ]
+      },
+      {
+        "h": "21. Cancellations &amp; Refunds",
+        "p": [
+          "You may cancel service on a card before work on it has begun; it will be returned and you pay only return shipping. Once work has begun, charges for work performed are due.",
+          "<strong>Because results vary and services cannot be undone, completed work is not refundable</strong>, except as described in Section 23.",
+          "If we cannot complete an approved service, we will explain why, return the card, and charge only for work actually performed, if any."
+        ]
+      },
+      {
+        "h": "22. Unpaid &amp; Unclaimed Cards",
+        "p": [
+          "If your cards are finished and you have not paid or arranged pickup or return <strong>within 30 days</strong> after we notify you, a storage fee of <strong>$5 per card per month</strong> (or part of a month) may apply.",
+          "If your cards remain unpaid or unclaimed <strong>for 90 days</strong> after our first notice, and at least one further written notice has been sent to the email, phone, or address you provided, the cards will be considered abandoned. To the extent permitted by Texas law, we may then sell or otherwise dispose of them and apply any proceeds to amounts owed. Keeping your contact information current is your responsibility."
+        ]
+      },
+      {
+        "h": "23. Limitation of Liability",
+        "p": [
+          "To the fullest extent permitted by applicable law, {business} will not be responsible for changes in collectible market value, anticipated grading results, loss of grading opportunity, grading fees, speculative future appreciation, lost profits, sentimental value, or indirect, incidental, special, or consequential damages resulting from the cleaning, evaluation, pressing, restoration, handling, storage, or shipping of a card.",
+          "Collectible values fluctuate, and restoration may affect a card’s desirability, market value, or treatment by third-party grading companies or potential buyers.",
+          "If a card is <strong>lost, or destroyed through our negligence</strong>, while in our possession, our total liability for that card is limited to the <strong>lesser of</strong> its declared value or its fair market value in its condition before service, as shown by our intake records.",
+          "For any other claim relating to the services, including dissatisfaction with results or the inherent risks described in Sections 2 through 4, our total liability is limited to a <strong>refund of the service fee paid for that card</strong>.",
+          "We are not responsible for loss or damage caused by events outside our reasonable control, including theft, fire, flood, or severe weather, beyond what any applicable insurance actually pays.",
+          "Any concern about condition, missing cards, or the work performed must be reported in writing <strong>within 7 days</strong> of pickup or delivery; cards not reported within that time are considered accepted as returned.",
+          "Nothing in these Terms is intended to waive or limit liability for gross negligence or intentional misconduct, or any liability that cannot legally be waived or limited under applicable law."
+        ]
+      },
+      {
+        "h": "24. Indemnification",
+        "p": [
+          "You agree to defend, indemnify, and hold harmless {business}, PH Collectibles HTX, and its owner from any claim, loss, or expense (including reasonable attorney’s fees) arising from a dispute over ownership of a card you submitted, your inaccurate statements or declared values, your sale or description of any serviced card, or your breach of these Terms."
+        ]
+      },
+      {
+        "h": "25. Customer Communication",
+        "p": [
+          "The email address and phone number provided with your submission will serve as the primary methods of communication regarding your cards.",
+          "You are responsible for providing accurate contact information and monitoring it for communications regarding submission authorization, value verification, drop-off and shipping, service recommendations, pricing changes, turnaround estimates, approvals, payment, completion, and return. By submitting, you agree to receive emails and messages about your submission."
+        ]
+      },
+      {
+        "h": "26. Photography, Documentation &amp; Marketing Use",
+        "p": [
+          "By submitting cards to {business}, you authorize {business} to photograph and/or record the submitted cards before, during, and after the service process.",
+          "Photographs and recordings may be used for intake and condition documentation, service records and quality control, before-and-after comparisons, educational content, {business}’s website and portfolio, social media, advertising and promotional materials, and demonstrations of techniques and results.",
+          "Photographs and video may be cropped, resized, formatted, edited, or combined as reasonably necessary for these purposes, provided that such use does not intentionally misrepresent the work performed.",
+          "Personally identifying customer information will not be publicly displayed or disclosed as part of marketing content without separate permission.",
+          "Photography, documentation, and marketing use of submitted cards is included within these Terms and does not require separate approval."
+        ]
+      },
+      {
+        "h": "27. Your Information",
+        "p": [
+          "Information you provide (name, contact details, address, card details, and photos) is used only to process your submission, communicate with you, return your cards, and keep business records. It is stored with the service providers used to run this website and our submission records, such as Google and Cloudinary. Your personal information is never sold."
+        ]
+      },
+      {
+        "h": "28. Disputes &amp; Governing Law",
+        "p": [
+          "If you have a concern, please contact us first; we will try in good faith to resolve it informally within 30 days.",
+          "These Terms are governed by the laws of the State of Texas, without regard to conflict-of-law rules. Any dispute not resolved informally will be brought only in the state courts located in Harris County, Texas (including justice court for small claims), and you consent to that venue."
+        ]
+      },
+      {
+        "h": "29. General",
+        "p": [
+          "<strong>Electronic acceptance.</strong> Clicking “I AGREE” and submitting your request is your electronic signature and has the same effect as a signed paper agreement.",
+          "<strong>Entire agreement.</strong> These Terms, together with your submission and any written confirmation from us, are the entire agreement regarding your submission. Statements made by phone, text, or in person do not change these Terms unless confirmed in writing.",
+          "<strong>Changes.</strong> These Terms may be updated from time to time. The version in effect on the date of your submission applies to that submission.",
+          "<strong>Severability.</strong> If any part of these Terms is found unenforceable, it will be enforced to the maximum extent permitted, and the rest remains in effect.",
+          "<strong>Survival.</strong> Sections 4 through 9, 15, 17, and 20 through 29 continue to apply after your cards are returned.",
+          "<strong>Contact.</strong> {business} · phcollectibleshtx@gmail.com · 713-262-5633 · Houston, Texas."
+        ]
+      }
     ],
-    acknowledgment: 'I have read and agree to the Customer Authorization above.',
-    footnote: 'By accepting above and submitting your request, you acknowledge that your electronic acceptance signifies your agreement to the {business} Customer Authorization in effect on the date of your submission.',
-    scrollHint: 'Read to the end to continue',
-    reachedEnd: 'You’ve reached the end — you can now accept.',
-    agreeLabel: 'I AGREE',
-    acceptedNote: 'Authorization accepted — you can now submit.'
+    "acknowledgment": "I have read, understand, and agree to the {business} Terms &amp; Conditions and Waiver of Liability. I confirm that I am at least 18 (or a parent or guardian submitting for a minor) and that I own or am authorized to submit these cards. I understand that card cleaning, pressing, and restoration involve inherent risks; that treated defects may partially reappear over time; that specific restoration and grading results are not guaranteed; and that turnaround times vary. I understand that shipping costs are my responsibility and that I must wait for {business} to contact me and authorize shipment before sending my cards. I understand that declared values may be verified and do not establish a replacement or guaranteed value, that liability is limited as described in these Terms, that payment is due before cards are released, and that unpaid or unclaimed cards are subject to Section 22. I authorize {business} to perform the services I approve and acknowledge that submitted cards may be photographed and/or recorded and that this content may be used for documentation, website, social media, educational, portfolio, advertising, and promotional purposes in accordance with these Terms.",
+    "footnote": "By accepting above and submitting your request, you acknowledge that your electronic acceptance signifies your agreement to the {business} Terms &amp; Conditions and Waiver of Liability in effect on the date of your submission.",
+    "scrollHint": "Read to the end to continue",
+    "reachedEnd": "You’ve reached the end — you can now accept.",
+    "agreeLabel": "I AGREE",
+    "acceptedNote": "Terms accepted — you can now submit."
   },
   track: {
     heading: 'Track your submission',
