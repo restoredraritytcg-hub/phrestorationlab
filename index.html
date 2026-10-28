@@ -21,7 +21,7 @@
  * ===================================================================== */
 const CONFIG = {
 
-  build: 'labs-v7',   // shown in the footer — bump on every upload
+  build: 'labs-v9',   // shown in the footer — bump on every upload
 
   /* ─── Backend + photo uploads ───────────────────────────────────── */
   backend: {
@@ -112,12 +112,15 @@ const CONFIG = {
     linkLabel: 'Details / directions →',
     hidePast: true,
     items: [
-      { date: '2026-10-24', endDate: '2026-10-25', name: 'Clear Lake Card Show',
-        location: 'McWhirter Elementary School, 300 Pennsylvania Ave, Webster, TX 77598',
-        time: 'Sat 10 AM – 6 PM · Sun 10 AM – 5 PM · Free admission', link: 'https://clearlakecardshow.com/events' },
-      { date: '2026-12-12', endDate: '2026-12-13', name: 'Gem Mint Cardshow',
-        location: 'POST Houston — The Office (Suite 2050), 401 Franklin St, Houston, TX 77201',
-        time: 'Hours TBA', link: 'https://www.posthtx.com/event/gem-mint-cardshow-3' }   // TODO: confirm December hours
+      { date: '2026-11-22', name: 'Mom and Pop Card Show',
+        location: 'Bad Astronaut Brewing Co., 1519 Fulton St, Houston, TX 77009',
+        time: 'Sun 11 AM – 5 PM · All ages · Food trucks', link: 'https://www.momandpopcardshow.com/' },
+      { date: '2026-11-28', endDate: '2026-11-29', name: 'Legends Card Con',
+        location: 'Houston, TX — venue TBA',
+        time: 'Hours TBA', link: 'https://www.instagram.com/legendscardcon/' },   // TODO: confirm venue + hours
+      { date: '2026-12-05', endDate: '2026-12-06', name: 'The Houston’s Collectors Expo',
+        location: 'NRG Stadium, 1 NRG Pkwy, Houston, TX 77054',
+        time: 'Hours TBA', link: 'https://houstoncollectorsexpo.com' }   // TODO: confirm hours
     ]
   },
 
@@ -673,13 +676,14 @@ const CONFIG = {
     onHighlight:'--on-highlight', onAccent:'--on-accent', success:'--success', danger:'--danger', starOff:'--star-off' };
   Object.keys(map).forEach(k => { if(c[k]) r.setProperty(map[k], c[k]); });
   r.setProperty('--radius', t.radius); r.setProperty('--maxw', t.maxWidth);
-  if(t.variant) document.documentElement.classList.add('v-' + t.variant);
+  if(t.variant) String(t.variant).split(/\s+/).forEach(v => v && document.documentElement.classList.add('v-' + v));
   const glow = t.glow == null ? 1 : t.glow;
   r.setProperty('--glow-a', `color-mix(in srgb, ${c.primary} ${Math.round(35 * glow)}%, transparent)`);
   r.setProperty('--glow-b', `color-mix(in srgb, ${c.accent} ${Math.round(12 * glow)}%, transparent)`);
   if(CONFIG.hero && CONFIG.hero.imageMaxWidth) r.setProperty('--hero-maxw', CONFIG.hero.imageMaxWidth);
   r.setProperty('--font-display', `'${f.display}', ${f.displayFallback || 'system-ui, sans-serif'}`);
   r.setProperty('--font-body', `'${f.body}', system-ui, -apple-system, 'Segoe UI', sans-serif`);
+  r.setProperty('--font-accent', f.accent ? `'${f.accent}', ${f.accentFallback || 'monospace'}` : 'var(--font-display)');
   r.setProperty('--display-weight', f.displayWeight || 400);
   r.setProperty('--ds', f.displayScale || 1);
   r.setProperty('--display-lh', f.displayLineHeight || 1.35);
@@ -693,7 +697,7 @@ const CONFIG = {
 
   const fam = (name, w, ital) => 'family=' + name.trim().replace(/ /g, '+') +
     (ital ? (w ? ':ital,wght@' + w.split(';').map(x => '1,' + x).join(';') : ':ital@1') : (w ? ':wght@' + w : ''));
-  const href = 'https://fonts.googleapis.com/css2?' + [fam(f.display, f.displayWeights, f.displayItalic), fam(f.body, f.bodyWeights)].join('&') + '&display=swap';
+  const href = 'https://fonts.googleapis.com/css2?' + [fam(f.display, f.displayWeights, f.displayItalic), fam(f.body, f.bodyWeights)].concat(f.accent ? [fam(f.accent, f.accentWeights)] : []).join('&') + '&display=swap';
   ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'].forEach((u, i) => {
     const l = document.createElement('link'); l.rel = 'preconnect'; l.href = u; if(i) l.crossOrigin = ''; document.head.appendChild(l);
   });
@@ -1824,6 +1828,29 @@ const CONFIG = {
   .about-image{display:block; width:200px; height:200px; border-radius:50%; object-fit:cover; margin:0 auto 22px;
     box-shadow:0 0 0 2px var(--highlight), 0 0 28px -4px color-mix(in srgb, var(--highlight) 55%, transparent);}
   .cc-promo.wrap{width:calc(100% - 40px); max-width:calc(var(--maxw) - 40px); margin-left:auto; margin-right:auto;}
+
+  /* Website Settings: loading state, announcement bar, news, paused form */
+  .cms-loading #site-root{visibility:hidden;}
+  .cms-loading body::after{content:''; position:fixed; top:50%; left:50%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--accent); animation:cms-spin .8s linear infinite;}
+  @keyframes cms-spin{to{transform:rotate(360deg);}}
+  .announce-bar{background:var(--accent); color:var(--on-accent); text-align:center; font-size:13.5px; font-weight:600; padding:9px 16px; line-height:1.45;}
+  .announce-bar a{color:inherit; font-weight:800; white-space:nowrap;}
+  .news-list{display:grid; gap:16px; grid-template-columns:1fr;}
+  @media (min-width:760px){ .news-list{grid-template-columns:repeat(2, minmax(0, 1fr));} }
+  .news-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px;}
+  .news-date{font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); margin-bottom:6px;}
+  .news-card h3{margin:0 0 6px; font-size:18px; color:var(--text);}
+  .news-card p{margin:0; font-size:14px; line-height:1.65; color:var(--muted);}
+  .news-btn{margin-top:14px; display:inline-block; padding:9px 18px; font-size:13px;}
+  .paused-note{border-left:4px solid var(--highlight);}
+  .paused-note b{display:block; font-size:16px; margin-bottom:4px; color:var(--text);}
+  .paused-note p{margin:0; color:var(--muted); font-size:14px; line-height:1.6;}
+  .v-brush .announce-bar{background:var(--ink, #111); color:#fff; border-bottom:3px solid var(--highlight);}
+  .v-brush .announce-bar a{color:var(--highlight-2);}
+  .v-brush .news-card{border:2px solid var(--ink, #111); border-radius:10px; box-shadow:5px 5px 0 var(--accent);}
+  .v-brush .news-card h3{font-family:var(--font-display); font-weight:400; text-transform:uppercase; font-size:calc(24px * var(--ds)); letter-spacing:.02em;}
+  .v-brush .news-date{font-family:var(--font-accent);}
 </style>
 </head>
 <body>
@@ -1852,6 +1879,7 @@ const CONFIG = {
 </div>
 
 <script>
+function __engine(){
 /* =====================================================================
  *  ENGINE — renders the page from CONFIG. No client values below.
  * ===================================================================== */
@@ -1877,10 +1905,34 @@ function setMsg(el, html, kind){ el.innerHTML = html || ''; el.className = 'form
 
 /* ---------- Pricing model (shared by ladder, calculator, form) ---------- */
 const P = C.pricing;
-const ADDON = (P.addon && P.addon.show) ? P.addon : null;
+const ADDONS = P.addons ? P.addons.filter(a => a.show !== false) : (P.addon && P.addon.show) ? [P.addon] : [];
+const ADDON = ADDONS[0] || null;
+const addonCard = i => Object.assign({}, ADDONS[i], { isAddon: true, addonIdx: i });
+const ADDON_GROUP = {};
+(P.groups || []).forEach(g => g.tiers.forEach(t => { if(t.addonRef != null) ADDON_GROUP[t.addonRef] = g.label; }));
 const ALL_TIERS = [];
-(P.groups || []).forEach(g => g.tiers.forEach(t => ALL_TIERS.push(Object.assign({}, t, { surcharge: !!g.surcharge }))));
-if(ADDON) ALL_TIERS.push({ title: ADDON.title, price: ADDON.price, desc: ADDON.desc, isAddon: true, surcharge: false });
+(P.groups || []).forEach(g => g.tiers.forEach(t => {
+  if(t.addonRef != null){ const a = ADDONS[t.addonRef]; if(a && a.price != null) ALL_TIERS.push(Object.assign(addonCard(t.addonRef), { surcharge: false, og: g.label })); return; }
+  if(t.selectable === false) return;
+  const base = Object.assign({}, t, { surcharge: !!g.surcharge, og: g.label });
+  if(t.speeds && t.speeds.length) t.speeds.forEach(sp => ALL_TIERS.push(Object.assign({}, base, { title: `${t.title} — ${sp.label}${sp.days ? ' (' + sp.days + ')' : ''}`, price: sp.price, speed: sp })));
+  else ALL_TIERS.push(base);
+}));
+ADDONS.forEach((a, i) => { if(a.price != null && ADDON_GROUP[i] == null) ALL_TIERS.push(Object.assign(addonCard(i), { surcharge: false, og: a.groupLabel || 'Add-ons' })); });
+function groupedOptions(fn){
+  if(!P.serviceGroups) return ALL_TIERS.map(fn).join('');
+  let out = '', cur = null;
+  ALL_TIERS.forEach((t, i) => {
+    if(t.og !== cur){ if(cur !== null) out += '</optgroup>'; cur = t.og; out += `<optgroup label="${attr(plain(T(cur || '')))}">`; }
+    out += fn(t, i);
+  });
+  return out + (cur !== null ? '</optgroup>' : '');
+}
+const calcAddonIds = i => i === 0 ? { inp: 'calc-crack', wrap: 'calc-crack-wrap', line: 'calc-crack-line', amt: 'calc-crack-amt' }
+  : { inp: 'calc-addon-' + i, wrap: 'calc-addon-wrap-' + i, line: 'calc-addon-line-' + i, amt: 'calc-addon-amt-' + i };
+const formAddonIds = (i, id) => i === 0 ? { inp: `f-crack-${id}`, wrap: `f-crack-wrap-${id}` } : { inp: `f-addon-${i}-${id}`, wrap: `f-addon-wrap-${i}-${id}` };
+const DELIVERY = (C.form && C.form.deliveryOptions && C.form.deliveryOptions.length) ? C.form.deliveryOptions
+  : [{ id: 'ship', value: 'Ship', label: C.form.shipLabel, address: true }, { id: 'hand', value: 'Hand delivered', label: C.form.handLabel, hand: true }];
 const BULK = (P.bulk && P.bulk.bands && P.bulk.bands.length) ? P.bulk.bands.slice().sort((a, b) => a.min - b.min) : null;
 function bulkPrice(qty){ let p = BULK[0].price; BULK.forEach(b => { if(qty >= b.min) p = b.price; }); return p; }
 function bulkRangeLabel(i){ const b = BULK[i], n = BULK[i + 1]; return n ? `${b.min}–${n.min - 1}` : `${b.min}+`; }
@@ -1912,14 +1964,31 @@ function surchargeTableHtml(){
     surchargeRows().map(s => `<div class="surcharge-row"><span class="val">${s.range}</span><span class="fee">${s.fee}</span></div>`).join('') + '</div>';
 }
 function tiersHtml(tiers){ return P.layout === 'cards' ? priceCardsHtml(tiers) : ladderHtml(tiers); }
-function tierSub(t){ return t.sub || (t.bulk && BULK ? bulkSub() : t.isAddon && ADDON.comboPrice != null ? `Only ${money(ADDON.comboPrice)} when combined with another service.` : ''); }
+function tierSub(t){
+  if(t.sub) return t.sub;
+  if(t.bulk && BULK) return bulkSub();
+  const a = t.isAddon ? (ADDONS[t.addonIdx] || ADDON) : null;
+  if(a && a.price != null && a.comboPrice != null) return `Only ${money(a.comboPrice)} when combined with another service.`;
+  return '';
+}
+function tierPriceHtml(t){
+  if(t.speeds && t.speeds.length) return `<table class="speed-table"><tbody>${t.speeds.map(sp =>
+    `<tr><th scope="row"><span class="sp-label">${T(sp.label)}</span>${sp.days ? `<small class="sp-days">${T(sp.days)}</small>` : ''}</th><td class="sp-price">${money(sp.price)}</td></tr>`).join('')}</tbody></table>`;
+  const unit = t.unit != null ? t.unit : P.unit;
+  const comboOnly = t.price == null && t.comboPrice != null;
+  const amt = t.priceLabel ? T(t.priceLabel) : (comboOnly ? '+' : '') + money(comboOnly ? t.comboPrice : t.price);
+  return `<div class="pc-price pixel${t.priceLabel ? ' is-label' : ''}">${t.from ? '<span class="pc-from">Starting at</span>' : ''}${amt}${unit ? `<span class="pc-unit">${T(unit)}</span>` : ''}</div>`;
+}
 function priceCardsHtml(tiers){
-  return `<div class="price-grid">` + tiers.map(t => {
+  return `<div class="price-grid${tiers.length === 4 ? ' four' : ''}">` + tiers.map(t => {
     const sub = tierSub(t);
-    return `<article class="price-card${t.featured ? ' featured' : ''}">` +
+    return `<article class="price-card${t.featured ? ' featured' : ''}${t.image ? ' has-img' : ''}${t.speeds ? ' has-speeds' : ''}${t.color ? ' c-' + t.color : ''}">` +
       (t.featured ? `<div class="pc-flag">${T(t.featured === true ? 'Featured' : t.featured)}</div>` : '') +
-      `<h3>${t.title}</h3><div class="pc-price pixel">${t.from ? '<span class="pc-from">Starting at</span>' : ''}${money(t.price)}${P.unit ? `<span class="pc-unit">${T(P.unit)}</span>` : ''}</div>` +
-      `<p class="pc-desc">${T(t.desc)}</p>` +
+      (t.image ? `<img class="pc-img" src="${attr(t.image)}" alt="" loading="lazy">` : '') +
+      (t.icon ? `<img class="pc-icon" src="${attr(t.icon)}" alt="" loading="lazy">` : '') +
+      (t.kicker ? `<div class="pc-kicker">${T(t.kicker)}</div>` : '') +
+      `<h3>${t.title}</h3>${tierPriceHtml(t)}` +
+      (t.desc ? `<p class="pc-desc">${T(t.desc)}</p>` : '') +
       (t.includes && t.includes.length ? `<ul class="tier-includes">${t.includes.map(x => `<li>${T(x)}</li>`).join('')}</ul>` : '') +
       (t.bestFor ? `<p class="tier-best"><b>Best for:</b> ${T(t.bestFor)}</p>` : '') +
       (sub ? `<span class="tier-sub">${T(sub)}</span>` : '') + `</article>`;
@@ -1927,7 +1996,7 @@ function priceCardsHtml(tiers){
 }
 function ladderHtml(tiers){
   return `<div class="ladder">` + tiers.map(t => {
-    const sub = t.sub || (t.bulk && BULK ? bulkSub() : t.isAddon && ADDON.comboPrice != null ? `Only ${money(ADDON.comboPrice)} when combined with another service.` : '');
+    const sub = tierSub(t);
     const pt = money(t.price) + (t.from ? '+' : '');
     return `<div class="tier"><div class="tier-price pixel${pt.length > 3 ? ' long' : ''}">${pt}</div><div class="tier-body"><h3>${t.title}</h3>` +
       `<p>${T(t.desc)}</p>` +
@@ -1938,12 +2007,13 @@ function ladderHtml(tiers){
 }
 
 /* ---------- Section builders ---------- */
-const head = (h, p) => `<div class="section-head"><h2 class="pixel">${T(h)}</h2>${p ? `<p>${T(p)}</p>` : ''}</div>`;
+const hTone = x => (C.theme.headingTwoTone && !/</.test(x) && /\S\s+\S+\s*$/.test(x)) ? x.replace(/\s+(\S+)\s*$/, ' <span class="h-alt">$1</span>') : x;
+const head = (h, p) => `<div class="section-head"><h2 class="pixel">${hTone(T(h))}</h2>${p ? `<p>${T(p)}</p>` : ''}</div>`;
 const SECTIONS = {
   hero(){
     const h = C.hero;
     const L = h.lockup;
-    return `<section class="hero${h.image || L ? '' : ' no-image'}">` +
+    return `<section class="hero${h.image || L ? '' : ' no-image'}${h.stack ? ' hero-stack' : ''}">` +
       (L ? `<div class="hero-lockup">${L.emblem ? `<img class="hl-emblem" src="${attr(L.emblem)}" alt="">` : ''}<div class="hl-word" role="img" aria-label="${attr(plain(T(L.alt || (L.line1 + ' ' + L.line2))))}"><span class="hl-1">${T(L.line1)}</span>${L.line2 ? `<span class="hl-rule"><i></i><b>${T(L.line2)}</b><i></i></span>` : ''}${L.by ? `<span class="hl-by">${T(L.by)}</span>` : ''}</div></div>`
          : h.image ? `<div class="hero-frame${h.imageMaxWidth ? ' boxed' : ''}"><img src="${attr(h.image)}" alt="${attr(T(h.imageAlt))}"></div>` : '') +
       `<div class="hero-text wrap"><div class="tagline"><div class="hero-headline pixel">${T(h.headline)}</div>` +
@@ -1957,6 +2027,17 @@ const SECTIONS = {
       `<span class="cc-promo-icon"><span class="cc-mini-card"><span class="cc-mini-img"></span></span></span>` +
       `<span class="cc-promo-text"><span class="cc-promo-title">${T(p.title)}</span><span class="cc-promo-sub">${T(p.sub)}</span></span>` +
       `<span class="cc-promo-arrow">&rarr;</span></a>`;
+  },
+  news(){
+    const n = C.news || {}, items = n.items || [];
+    const safe = u => /^(https?:|mailto:|tel:|#)/i.test(String(u || '').trim()) ? String(u).trim() : '';
+    const when = v => { const m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : String(v || ''); };
+    return `<section id="news" class="wrap">${head(n.heading || 'News', n.intro)}<div class="news-list">` + items.map(it => {
+      const link = safe(it.link);
+      return `<article class="news-card">${it.date ? `<div class="news-date">${esc(when(it.date))}</div>` : ''}${it.title ? `<h3>${esc(it.title)}</h3>` : ''}` +
+        `${it.message ? `<p>${esc(it.message).replace(/\n/g, '<br>')}</p>` : ''}` +
+        `${link ? `<a class="btn btn-outline news-btn" href="${attr(link)}"${/^https?:/i.test(link) ? ' target="_blank" rel="noopener"' : ''}>${esc(it.linkLabel || 'Learn more')}</a>` : ''}</article>`;
+    }).join('') + `</div></section>`;
   },
   events(){ const e = C.events; return `<section id="events" class="wrap">${head(e.heading, e.intro)}<div id="shows-list"></div></section>`; },
   about(){
@@ -2003,14 +2084,21 @@ const SECTIONS = {
   pricing(){
     let h = `<section id="pricing" class="wrap">${head(P.heading, P.intro)}`;
     if(P.notice && P.notice.show) h += `<div class="price-notice" role="note"><span class="pn-tag">${T(P.notice.tag)}</span><div>${T(P.notice.html)}</div></div>`;
+    const G = P.guide;
+    if(G) h += `<div class="svc-guide">${G.title ? `<div class="sg-title">${T(G.title)}</div>` : ''}<ol>` +
+      G.steps.map((st, i) => `<li class="sg-step c-${st.color || 'blue'}"><span class="sg-n">${i + 1}</span><div><b>${T(st.title)}</b><p>${T(st.text)}</p></div></li>`).join('') +
+      `</ol>${G.note ? `<div class="sg-note">${T(G.note)}</div>` : ''}</div>`;
     (P.groups || []).forEach((g, i) => {
-      h += `<div class="ladder-group-label"${i ? ' style="margin-top:36px;"' : ''}>${T(g.label)}</div>` + tiersHtml(g.tiers);
+      const tiers = g.tiers.map(t => t.addonRef != null ? addonCard(t.addonRef) : t);
+      h += `<div class="ladder-group-label"${i ? ' style="margin-top:36px;"' : ''}>${T(g.label)}</div>` + (g.intro ? `<p class="group-intro">${T(g.intro)}</p>` : '') + tiersHtml(tiers);
       if(BULK && g.tiers.some(t => t.bulk)){
         h += `<div class="bulk-table" aria-label="${attr(plain(T(P.bulk.label)))}"><div class="surcharge-row surcharge-header"><span class="val">${T(P.bulk.label)}</span><span class="fee">${T(P.bulk.unitLabel)}</span></div>` +
           BULK.map((b, j) => `<div class="surcharge-row"><span class="val">${bulkRangeLabel(j)} ${WD.items}</span><span class="fee">${money(b.price)}</span></div>`).join('') + `</div>`;
       }
     });
-    if(ADDON) h += `<div class="ladder-group-label" style="margin-top:36px;">${T(ADDON.groupLabel)}</div>` + tiersHtml([ALL_TIERS[ALL_TIERS.length - 1]]);
+    const loose = ADDONS.map((a, i) => i).filter(i => ADDON_GROUP[i] == null);
+    if(loose.length) h += `<div class="ladder-group-label" style="margin-top:36px;">${T(ADDONS[loose[0]].groupLabel || 'Add-ons')}</div>` + tiersHtml(loose.map(addonCard));
+    if(P.notes && P.notes.length) h += `<div class="price-notes">${P.notes.map(n => `<p>${T(n)}</p>`).join('')}</div>`;
     if(SUR){
       h += `<div class="ladder-group-label" style="margin-top:36px;">${T(SUR.groupLabel)}</div>` +
         `<div class="pricing-explainer">${(SUR.explainer || []).map(p => `<p>${T(p)}</p>`).join('')}</div>` +
@@ -2020,13 +2108,13 @@ const SECTIONS = {
     if(K && K.show){
       h += `<div class="ladder-group-label" style="margin-top:36px;">${T(K.label)}</div><div class="calc-panel">
         <div class="field"><label for="calc-service">Service</label><select id="calc-service"></select></div>
-        ${ADDON ? `<label class="addon-check" id="calc-crack-wrap" style="margin:-4px 0 16px;"><input type="checkbox" id="calc-crack"> ${T(ADDON.calcCheckbox)} (+${money(ADDON.comboPrice)})</label>` : ''}
+        ${ADDONS.map((a, i) => `<label class="addon-check" id="${calcAddonIds(i).wrap}" style="margin:-4px 0 ${i === ADDONS.length - 1 ? 16 : 10}px;"><input type="checkbox" id="${calcAddonIds(i).inp}"> ${T(a.calcCheckbox)} (+${money(a.comboPrice)})</label>`).join('')}
         <div class="field"><label for="calc-qty">${T(K.qtyLabel)}</label><input type="text" id="calc-qty" inputmode="numeric" placeholder="1" value="1"></div>
         ${SUR ? `<div class="field" style="margin-bottom:0;"><label for="calc-value">${T(K.valueLabel)} <span class="hint-inline">(optional)</span></label><input type="text" id="calc-value" inputmode="decimal" placeholder="${attr(T(K.valuePlaceholder))}"></div>` : ''}
         ${P.referral.enabled ? `<div class="field" style="margin-bottom:0; margin-top:14px;"><label for="calc-referral">Referral code <span class="hint-inline">(optional)</span></label><input type="text" id="calc-referral" placeholder="e.g. CODE123" autocapitalize="characters"></div>` : ''}
         <div class="calc-result">
           <div class="calc-line"><span id="calc-base-label">Base service</span><span id="calc-base">—</span></div>
-          <div class="calc-line" id="calc-crack-line" style="display:none;"><span>${ADDON ? T(ADDON.calcLine) : ''}</span><span id="calc-crack-amt">—</span></div>
+          ${ADDONS.map((a, i) => `<div class="calc-line" id="${calcAddonIds(i).line}" style="display:none;"><span>${T(a.calcLine)}</span><span id="${calcAddonIds(i).amt}">—</span></div>`).join('')}
           <div class="calc-line" id="calc-surcharge-line" style="display:none;"><span>Value surcharge</span><span id="calc-surcharge">—</span></div>
           <div class="calc-line" id="calc-discount-line" style="display:none;"><span>Referral discount (${Math.round(P.referral.discount * 100)}%)</span><span id="calc-discount">—</span></div>
           <div class="calc-line calc-total"><span>Estimated total</span><span id="calc-total">—</span></div>
@@ -2064,7 +2152,8 @@ const SECTIONS = {
       tm.sections.map(s => `<h4>${T(s.h)}</h4>` + s.p.map(p => p === '{{surchargeTable}}' ? surchargeTableHtml() : `<p>${T(p)}</p>`).join('')).join('') +
       `<div class="terms-ack-block"><h4>Acknowledgment</h4><p>${T(tm.acknowledgment)}</p><div id="terms-end" aria-hidden="true"></div></div>`;
     return `<section id="submit" class="wrap">${head(f.heading, f.intro)}
-    <details class="card-panel" id="submit-panel"><summary>${T(f.openLabel)}</summary>
+    ${f.paused ? `<div class="paused-note card-panel" id="paused-note" role="status"><b>${T(f.pausedTitle || 'Submissions are paused')}</b><p>${esc(f.paused)}</p></div>` : ''}
+    <details class="card-panel" id="submit-panel"${f.paused ? ' hidden' : ''}><summary>${T(f.openLabel)}</summary>
       <form id="intake-form" novalidate>
         <div class="field"><label for="f-name">Name <span class="req">*</span></label><input type="text" id="f-name" autocomplete="name" required></div>
         <div class="row2">
@@ -2073,8 +2162,7 @@ const SECTIONS = {
         </div>
         <div class="field"><label>${T(f.deliveryLabel)} <span class="req">*</span></label>
           <div class="delivery-toggle">
-            <label class="delivery-option"><input type="radio" name="delivery" value="ship" id="f-delivery-ship" checked><span>${T(f.shipLabel)}</span></label>
-            <label class="delivery-option"><input type="radio" name="delivery" value="hand" id="f-delivery-hand"><span>${T(f.handLabel)}</span></label>
+            ${DELIVERY.map((o, i) => `<label class="delivery-option"><input type="radio" name="delivery" value="${attr(o.value)}" id="f-delivery-${o.id || i}"${i ? '' : ' checked'}><span>${T(o.label)}${o.hint ? `<small>${T(o.hint)}</small>` : ''}</span></label>`).join('')}
           </div></div>
         <div id="shipping-fields">
           <div class="field"><label for="f-address">${T(f.addressLabel)} <span class="hint-inline">${T(f.addressHint)}</span></label><textarea id="f-address" autocomplete="street-address" placeholder="${attr(T(f.addressPlaceholder))}"></textarea></div>
@@ -2150,6 +2238,42 @@ const SECTIONS = {
   }
 };
 
+/* ---------- Generic feature blocks (CONFIG.blocks) + profile card (CONFIG.dex) ---------- */
+function blockHtml(k, b){
+  const cols = b.columns || Math.min(b.items.length, 4);
+  return `<section id="${k}" class="wrap block blk-${b.style || 'cards'}">${head(b.heading, b.intro)}<div class="blk-grid" style="--cols:${cols}">` +
+    b.items.map(it => `<article class="blk-item${it.color ? ' c-' + it.color : ''}">` +
+      (it.icon ? `<img class="blk-icon" src="${attr(it.icon)}" alt="" loading="lazy">` : '') +
+      (it.image ? `<img class="blk-img" src="${attr(it.image)}" alt="" loading="lazy">` : '') +
+      `<div class="blk-body"><h3>${T(it.title)}</h3>${it.text ? `<p>${T(it.text)}</p>` : ''}` +
+      (it.list ? `<ul class="blk-list">${it.list.map(x => `<li>${T(x)}</li>`).join('')}</ul>` : '') + `</div></article>`).join('') +
+    `</div>${b.footnote ? `<p class="blk-foot">${T(b.footnote)}</p>` : ''}</section>`;
+}
+function dexPane(t){
+  return (t.lines ? `<div class="dex-lines">${t.lines.map(x => `<p>${T(x)}</p>`).join('')}</div>` : '') +
+    (t.checklistTitle ? `<div class="dex-sub"><span>${T(t.checklistTitle)}</span></div>` : '') +
+    (t.checklist ? `<ul class="dex-check">${t.checklist.map(x => `<li>${T(x)}</li>`).join('')}</ul>` : '') +
+    (t.steps ? `<ol class="dex-steps">${t.steps.map((x, i) => `<li><span>${i + 1}</span><div>${T(x)}</div></li>`).join('')}</ol>` : '') +
+    (t.note ? `<div class="dex-note"><span class="dex-star" aria-hidden="true">★</span><div><b>${T(t.note.title)}</b>${(t.note.lines || []).map(x => `<p>${T(x)}</p>`).join('')}</div></div>` : '');
+}
+function dexHtml(key){
+  const d = C.dex, tabs = d.tabs || [];
+  return `<section id="${key}" class="wrap">${head(d.heading, d.intro)}<div class="dex">` +
+    `<div class="dex-top"><div class="dex-box dex-portrait">${d.number ? `<span class="dex-no">${T(d.number)}</span>` : ''}<img src="${attr(d.image)}" alt="${attr(plain(T(d.imageAlt || d.name)))}" loading="lazy"></div>` +
+    `<div class="dex-box dex-stats"><div class="dex-name">${T(d.name)}</div>${d.title ? `<div class="dex-title">${T(d.title)}</div>` : ''}<hr>` +
+    ((d.types || []).length ? `<div class="dex-row"><span>TYPE</span><span class="dex-types">${d.types.map(t => `<b class="dex-type c-${t.color || 'blue'}">${T(t.label)}</b>`).join('')}</span></div>` : '') +
+    (d.stats || []).map(st => `<div class="dex-row"><span>${T(st[0])}</span><span>${T(st[1])}</span></div>`).join('') +
+    (d.specialty ? `<hr><div class="dex-spec"><span>SPECIALTY</span><b>${T(d.specialty)}</b></div>` : '') + `</div></div>` +
+    `<div class="dex-box dex-panel">` + tabs.map((t, i) => `<div class="dex-pane" id="dex-pane-${i}" role="tabpanel"${i ? ' hidden' : ''}><div class="dex-pane-title"><span>${T(t.title)}</span></div>${dexPane(t)}</div>`).join('') + `</div>` +
+    `<div class="dex-bottom"><div class="dex-box dex-menu" role="tablist" aria-label="${attr(plain(T(d.name)))}">` +
+    tabs.map((t, i) => `<button type="button" role="tab" class="dex-tab" id="dex-tab-${i}" aria-controls="dex-pane-${i}" aria-selected="${i ? 'false' : 'true'}">${T(t.label)}</button>`).join('') + `</div>` +
+    `<div class="dex-box dex-tag"><div class="dex-tag-1">${T(d.tagline || '')}</div>${d.taglineSub ? `<div class="dex-tag-2">${T(d.taglineSub)}</div>` : ''}` +
+    (d.cta ? `<a class="dex-cta" href="${attr(d.cta.href)}"><span>${T(d.cta.label)}</span>${d.cta.sub ? `<small>${T(d.cta.sub)}</small>` : ''}</a>` : '') + `</div></div>` +
+    `${d.back ? `<a class="dex-back" href="${attr(d.back.href || '#')}"><span>B</span> ${T(d.back.label || 'BACK')}</a>` : ''}</div></section>`;
+}
+Object.keys(C.blocks || {}).forEach(k => { if(!SECTIONS[k]) SECTIONS[k] = () => blockHtml(k, C.blocks[k]); });
+if(C.dex){ const dk = C.dex.key || 'meet'; if(!SECTIONS[dk]) SECTIONS[dk] = () => dexHtml(dk); }
+
 /* ---------- Shell: header, nav, sections, footer ---------- */
 (function renderShell(){
   const b = C.brand;
@@ -2167,6 +2291,11 @@ const SECTIONS = {
     html += SECTIONS[k](); first = false;
   });
   $('main').innerHTML = html;
+  if(C.announcement){
+    const a = C.announcement, link = /^(https?:|mailto:|tel:|#)/i.test(String(a.link || '').trim()) ? String(a.link).trim() : '';
+    $('setup-banner').insertAdjacentHTML('afterend', `<div class="announce-bar" id="announce-bar" role="note"><span>${esc(a.text)}</span>` +
+      (link ? ` <a href="${attr(link)}"${/^https?:/i.test(link) ? ' target="_blank" rel="noopener"' : ''}>Learn more →</a>` : '') + `</div>`);
+  }
   $('footer-name').textContent = b.name.toUpperCase();
   if(b.footerLogo && b.logoImage) $('footer-name').insertAdjacentHTML('beforebegin', `<img class="footer-logo" src="${attr(b.logoImage)}" alt="">`);
   $('footer-summary').innerHTML = T(b.footerSummary);
@@ -2234,16 +2363,24 @@ if(P.referral.enabled && ENDPOINT && (has('submit') || has('pricing'))){
   }).join('');
 })();
 
+/* ---------- Profile card tabs ---------- */
+(function(){
+  const tabs = [...document.querySelectorAll('.dex-tab')];
+  tabs.forEach((b, i) => b.addEventListener('click', () => {
+    tabs.forEach((x, j) => { x.setAttribute('aria-selected', i === j ? 'true' : 'false'); const p = $('dex-pane-' + j); if(p) p.hidden = i !== j; });
+  }));
+})();
+
 /* ---------- Price calculator ---------- */
 let runCalculator = null;
 (function(){
   const sel = $('calc-service');
   if(!sel) return;
   const K = P.calculator;
-  sel.innerHTML = ALL_TIERS.map((t, i) => `<option value="${i}">${t.title}${t.isAddon ? ' only' : ''} — ${t.from ? 'from ' : ''}${money(t.price)}</option>`).join('');
+  sel.innerHTML = groupedOptions((t, i) => `<option value="${i}">${t.title}${t.isAddon ? ' only' : ''} — ${t.from ? 'from ' : ''}${money(t.price)}</option>`);
   const valueIn = $('calc-value'), refIn = $('calc-referral'), qtyIn = $('calc-qty');
-  const crackIn = $('calc-crack'), crackWrap = $('calc-crack-wrap');
-  const baseEl = $('calc-base'), baseLabel = $('calc-base-label'), crackLine = $('calc-crack-line'), crackAmt = $('calc-crack-amt');
+  const addonEls = ADDONS.map((a, i) => { const ids = calcAddonIds(i); return { inp: $(ids.inp), wrap: $(ids.wrap), line: $(ids.line), amt: $(ids.amt) }; });
+  const baseEl = $('calc-base'), baseLabel = $('calc-base-label');
   const surLine = $('calc-surcharge-line'), surEl = $('calc-surcharge');
   const discLine = $('calc-discount-line'), discEl = $('calc-discount'), totalEl = $('calc-total'), hintEl = $('calc-hint');
   const fmt = n => Number.isInteger(n) ? money(n) : C.pricing.currency + n.toFixed(2);
@@ -2263,13 +2400,18 @@ let runCalculator = null;
     const tier = ALL_TIERS[Number(sel.value)];
     const qty = Math.max(1, Math.floor(Number(qtyIn.value.replace(/[^0-9]/g, '')) || 1));
     const perItem = (tier.bulk && BULK) ? bulkPrice(qty) : Number(tier.price);
-    if(crackWrap) crackWrap.style.display = tier.isAddon ? 'none' : 'flex';
-    const crack = ADDON && !tier.isAddon && crackIn.checked;
+    const noAdd = !!(tier.isAddon || tier.noAddons);
     baseLabel.textContent = qty > 1 ? `Base service (${money(perItem)} × ${qty})` : 'Base service';
     baseEl.textContent = money(perItem * qty);
-    if(crack){ crackLine.style.display = 'flex'; crackAmt.textContent = `+${money(ADDON.comboPrice * qty)}`; }
-    else crackLine.style.display = 'none';
-    const basePrice = (perItem + (crack ? ADDON.comboPrice : 0)) * qty;
+    let addPer = 0;
+    ADDONS.forEach((a, i) => {
+      const el = addonEls[i];
+      if(el.wrap) el.wrap.style.display = noAdd ? 'none' : 'flex';
+      const on = !noAdd && el.inp && el.inp.checked;
+      if(el.line) el.line.style.display = on ? 'flex' : 'none';
+      if(on){ el.amt.textContent = `+${money(a.comboPrice * qty)}`; addPer += a.comboPrice; }
+    });
+    const basePrice = (perItem + addPer) * qty;
 
     const rawValue = valueIn ? valueIn.value.trim() : '';
     const value = rawValue ? Number(rawValue.replace(/[^0-9.]/g, '')) : 0;
@@ -2299,7 +2441,7 @@ let runCalculator = null;
     if(tier.from) totalEl.textContent = 'From ' + totalEl.textContent;
     hintEl.innerHTML = T(K.defaultHint) + multi + (tier.from && K.fromHint ? ' ' + T(K.fromHint) : '');
   };
-  [sel, crackIn].forEach(el => el && el.addEventListener('change', runCalculator));
+  [sel].concat(addonEls.map(el => el.inp)).forEach(el => el && el.addEventListener('change', runCalculator));
   [valueIn, refIn, qtyIn].forEach(el => el && el.addEventListener('input', runCalculator));
   runCalculator();
 })();
@@ -2495,12 +2637,12 @@ let resetTerms = () => {};
   let activeUploadCount = 0;
 
   function serviceOptionsHtml(){
-    return `<option value="" disabled selected>${T(F.servicePlaceholder)}</option>` + ALL_TIERS.map(t => {
+    return `<option value="" disabled selected>${T(F.servicePlaceholder)}</option>` + groupedOptions(t => {
       const pr = (t.from ? 'starting at ' : '') + money(t.price);
       const label = (t.bulk && BULK) ? `${t.title} — ${pr} (bulk: ${bulkShort()})` : t.isAddon ? `${t.title} only — ${pr}` : `${t.title} — ${pr}`;
       const val = plain(t.isAddon ? `${t.title} only (${pr})` : `${t.title} (${pr})`);
-      return `<option value="${attr(val)}"${t.isAddon ? ' data-addon="1"' : ''}>${label}</option>`;
-    }).join('');
+      return `<option value="${attr(val)}"${t.isAddon ? ' data-addon="1"' : ''}${t.noAddons ? ' data-noaddons="1"' : ''}>${label}</option>`;
+    });
   }
   function setUploadingState(active){
     if(active){ submitBtn.dataset.uploadBlocked = 'true'; submitBtn.disabled = true; submitBtn.textContent = 'Uploading photos…'; }
@@ -2554,7 +2696,7 @@ let resetTerms = () => {};
       ${(F.extraFields || []).length ? `<div class="row2 row2-wrap">${F.extraFields.map(x => `<div class="field"><label for="f-x-${x.key}-${id}">${T(x.label)}</label><input type="text" id="f-x-${x.key}-${id}" placeholder="${attr(T(x.placeholder || ''))}"></div>`).join('')}</div>` : ''}
       ${F.value.show ? `<div class="field"><label for="f-value-${id}">${T(F.value.label)}</label><input type="text" id="f-value-${id}" inputmode="decimal" placeholder="${attr(T(F.value.placeholder))}"></div>` : ''}
       ${ALL_TIERS.length ? `<div class="field"><label for="f-service-${id}">${T(F.serviceLabel)} <span class="req">*</span></label><select id="f-service-${id}" required>${serviceOptionsHtml()}</select>
-        ${ADDON ? `<label class="addon-check" id="f-crack-wrap-${id}"><input type="checkbox" id="f-crack-${id}"> ${T(ADDON.formCheckbox)} (+${money(ADDON.comboPrice)})</label>` : ''}</div>` : ''}
+        ${ADDONS.map((a, i) => `<label class="addon-check" id="${formAddonIds(i, id).wrap}"><input type="checkbox" id="${formAddonIds(i, id).inp}"> ${T(a.formCheckbox)} (+${money(a.comboPrice)})</label>`).join('')}</div>` : ''}
       ${F.concerns && F.concerns.options && F.concerns.options.length ? `<div class="field"><label id="f-cc-label-${id}">${T(F.concerns.label)}</label><div class="concern-grid" role="group" aria-labelledby="f-cc-label-${id}">${F.concerns.options.map(o => `<label class="concern-chip"><input type="checkbox" name="f-cc-${id}" value="${attr(plain(T(o)))}"> ${T(o)}</label>`).join('')}</div>${F.concerns.otherLabel ? `<input type="text" id="f-cc-other-${id}" class="concern-other" placeholder="${attr(T(F.concerns.otherLabel))}" aria-label="${attr(plain(T(F.concerns.otherLabel)))}">` : ''}</div>` : ''}
       <div class="field"><label for="f-notes-${id}">${T(F.notesLabel)}</label><textarea id="f-notes-${id}"></textarea></div>
       ${photosHtml(id)}
@@ -2631,9 +2773,9 @@ let resetTerms = () => {};
     if(photosOn){ wirePhotoSlot(id, 'front'); wirePhotoSlot(id, 'back'); wireDetailPhotos(id); }
     const svc = $(`f-service-${id}`);
     if(svc) svc.addEventListener('change', () => {
-      const solo = !!(svc.selectedOptions[0] && svc.selectedOptions[0].dataset.addon);
-      const wrap = $(`f-crack-wrap-${id}`);
-      if(wrap){ wrap.style.display = solo ? 'none' : 'flex'; if(solo) $(`f-crack-${id}`).checked = false; }
+      const o = svc.selectedOptions[0];
+      const solo = !!(o && (o.dataset.addon || o.dataset.noaddons));
+      ADDONS.forEach((a, i) => { const ids = formAddonIds(i, id), wrap = $(ids.wrap); if(wrap){ wrap.style.display = solo ? 'none' : 'flex'; if(solo) $(ids.inp).checked = false; } });
     });
     container.querySelector(`[data-card-id="${id}"] .remove-card-btn`).addEventListener('click', () => {
       delete entries[id]; container.querySelector(`[data-card-id="${id}"]`).remove(); renumber();
@@ -2644,9 +2786,10 @@ let resetTerms = () => {};
   $('add-card-btn').addEventListener('click', addEntry);
   addEntry();
 
-  const shipR = $('f-delivery-ship'), handR = $('f-delivery-hand'), shipFields = $('shipping-fields');
-  const updateDeliveryUI = () => { shipFields.style.display = shipR.checked ? 'block' : 'none'; };
-  shipR.addEventListener('change', updateDeliveryUI); handR.addEventListener('change', updateDeliveryUI); updateDeliveryUI();
+  const delivRadios = [...form.querySelectorAll('input[name="delivery"]')], shipFields = $('shipping-fields');
+  const curDelivery = () => DELIVERY[Math.max(0, delivRadios.findIndex(r => r.checked))] || DELIVERY[0];
+  const updateDeliveryUI = () => { shipFields.style.display = curDelivery().address ? 'block' : 'none'; };
+  delivRadios.forEach(r => r.addEventListener('change', updateDeliveryUI)); updateDeliveryUI();
 
   /* Terms: scroll to the end, then accept inline */
   const termsEmbed = $('terms-embed'), termsScroll = $('terms-scroll'), agreeBtn = $('terms-agree-btn'), termsCheckbox = $('f-terms');
@@ -2692,10 +2835,11 @@ let resetTerms = () => {};
   form.addEventListener('submit', async e => {
     e.preventDefault();
     setMsg(formMsg, '');
+    if(C.form.paused) return setMsg(formMsg, esc(C.form.paused), 'err');
     if(activeUploadCount > 0) return setMsg(formMsg, T(M.uploading), 'err');
 
     const name = $('f-name').value.trim(), email = $('f-email').value.trim(), phone = $('f-phone').value.trim();
-    const deliveryMethod = handR.checked ? 'Hand delivered' : 'Ship';
+    const dOpt = curDelivery(), deliveryMethod = dOpt.value;
     const address = $('f-address').value.trim();
     const insuredShipping = !!($('f-insured') && $('f-insured').checked);
     const referralCode = referralInput ? referralInput.value.trim().toUpperCase() : '';
@@ -2707,9 +2851,9 @@ let resetTerms = () => {};
       const value = $(`f-value-${cid}`) ? $(`f-value-${cid}`).value.trim() : '';
       const svc = $(`f-service-${cid}`);
       let service = svc ? svc.value : '';
-      const solo = !!(svc && svc.selectedOptions[0] && svc.selectedOptions[0].dataset.addon);
-      const crackEl = $(`f-crack-${cid}`);
-      if(service && ADDON && crackEl && crackEl.checked && !solo) service += plain(` + ${ADDON.title} (${money(ADDON.comboPrice)})`);
+      const so = svc && svc.selectedOptions[0];
+      const solo = !!(so && (so.dataset.addon || so.dataset.noaddons));
+      ADDONS.forEach((a, i) => { const el = $(formAddonIds(i, cid).inp); if(service && el && el.checked && !solo) service += plain(` + ${a.title} (${money(a.comboPrice)})`); });
       let notes = $(`f-notes-${cid}`).value.trim();
       const extra = (F.extraFields || []).map(x => ({ x, v: ($(`f-x-${x.key}-${cid}`) || {}).value ? $(`f-x-${x.key}-${cid}`).value.trim() : '' })).filter(o => o.v);
       const concerns = [...el.querySelectorAll(`input[name="f-cc-${cid}"]:checked`)].map(c => c.value);
@@ -2740,10 +2884,11 @@ let resetTerms = () => {};
     try{
       const response = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record) });
       const result = await response.json();
+      if(result && result.paused){ setMsg(formMsg, esc(C.form.pausedMessage || 'Submissions were just paused — please check back soon.'), 'err'); return; }
       if(!result || !result.success) throw new Error((result && result.error) || 'submit failed');
       const ref = result.ref || id;
       const count = items.length > 1 ? `${items.length} ${WD.items}` : `your ${WD.item}`;
-      const sk = (email ? 'successEmail' : 'successPhone') + (handR.checked && M[(email ? 'successEmail' : 'successPhone') + 'Hand'] ? 'Hand' : '');
+      const sk = (email ? 'successEmail' : 'successPhone') + (dOpt.hand && M[(email ? 'successEmail' : 'successPhone') + 'Hand'] ? 'Hand' : '');
       setMsg(formMsg, T(M[sk]).replace('{count}', count).replace('{ref}', esc(ref)).replace('{email}', esc(email)), 'ok');
       if(email && $('trk-ref')){ $('trk-ref').value = ref; $('trk-email').value = email; }
       form.reset(); resetTerms();
@@ -2910,6 +3055,111 @@ let resetTerms = () => {};
   openTarget(h);
   const go = () => { const t = document.querySelector(h); if(t) t.scrollIntoView({ block: 'start' }); };
   if(document.readyState === 'complete') go(); else window.addEventListener('load', go);
+})();
+
+}
+
+/* =====================================================================
+ *  WEBSITE SETTINGS — the owner's Google Sheet tabs (Site Settings, Site Sections,
+ *  Site Prices, Site Shows, Site News) are read here and applied to CONFIG before
+ *  the page renders. If the Sheet is slow or unreachable the page uses CONFIG as-is.
+ * ===================================================================== */
+(function(){
+  const C = CONFIG, cms = C.cms || {};
+  const ep = ((C.backend && C.backend.endpoint) || '').trim();
+  const txt = h => { const d = document.createElement('textarea'); d.innerHTML = String(h == null ? '' : h); return d.value.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); };
+  const norm = x => txt(x).toLowerCase();
+  const yes = v => v === true || /^(true|yes|y|1|on|x|✓)$/i.test(String(v == null ? '' : v).trim());
+  const addonsOf = P => P.addons ? P.addons : (P.addon && P.addon.show) ? [P.addon] : [];
+
+  /* Defaults sent once to fill the empty tabs */
+  function seedPayload(){
+    const P = C.pricing || {}, order = (C.layout.order || []).slice();
+    if(order.indexOf('news') === -1) order.splice(order[0] === 'hero' ? 1 : 0, 0, 'news');
+    const extra = ['events', 'gallery', 'tool'].concat(Object.keys(C.blocks || {})).concat(C.dex ? [C.dex.key || 'meet'] : [])
+      .filter((k, i, a) => a.indexOf(k) === i && order.indexOf(k) === -1 && (C[k] || (C.blocks && C.blocks[k]) || (C.dex && (C.dex.key || 'meet') === k)));
+    const label = k => txt((C.layout.nav || {})[k] || (C.blocks && C.blocks[k] && C.blocks[k].heading) ||
+      (C.dex && (C.dex.key || 'meet') === k && C.dex.heading) || (k === 'news' && 'News & coming soon') || (k === 'hero' && 'Top banner') ||
+      (k === 'promo' && 'Centering calculator banner') || (C[k] && C[k].heading) || k);
+    const sections = order.map((k, i) => ({ key: k, label: label(k), show: true, order: (i + 1) * 10 }))
+      .concat(extra.map((k, i) => ({ key: k, label: label(k), show: false, order: (order.length + i + 1) * 10 })));
+    const prices = [];
+    (P.groups || []).forEach(g => g.tiers.forEach(t => {
+      if(t.addonRef != null) return;
+      if(t.speeds && t.speeds.length) t.speeds.forEach(sp => prices.push({ group: txt(g.label), service: txt(t.title), option: txt(sp.label), price: sp.price, days: txt(sp.days || '') }));
+      else if(t.price != null && !t.priceLabel) prices.push({ group: txt(g.label), service: txt(t.title), option: '', price: t.price, days: '' });
+    }));
+    addonsOf(P).forEach(a => {
+      if(a.price != null) prices.push({ group: 'Add-ons', service: txt(a.title), option: 'On its own', price: a.price, days: '' });
+      if(a.comboPrice != null) prices.push({ group: 'Add-ons', service: txt(a.title), option: 'With another service', price: a.comboPrice, days: '' });
+    });
+    const shows = ((C.events && C.events.items) || []).map(x => ({ date: x.date || '', endDate: x.endDate || '', name: txt(x.name), location: txt(x.location), time: txt(x.time), link: x.link || '' }));
+    const news = [{ show: false, date: '', title: 'Example post — tick “Show on site” to publish',
+      message: 'Use this tab for news, new services, holiday hours, giveaways, event announcements or anything coming soon.', linkLabel: '', link: '' }];
+    return { action: 'seedSite', sections, prices, shows, news };
+  }
+
+  /* Apply the Sheet's values to CONFIG */
+  function apply(d){
+    const st = d.settings || {};
+    C.news = Object.assign({ heading: 'News & coming soon', intro: '' }, C.news || {});
+    if(st.news_heading) C.news.heading = String(st.news_heading);
+    C.news.items = (d.news || []).filter(n => n && (n.title || n.message));
+    if(d.seeded && d.sections && d.sections.length){
+      const rows = d.sections.filter(x => x && x.key);
+      const seen = new Set(rows.map(x => x.key));
+      const order = rows.filter(x => x.show).map((x, i) => Object.assign({ i }, x))
+        .sort((a, b) => (a.order - b.order) || (a.i - b.i)).map(x => x.key);
+      (C.layout.order || []).forEach(k => { if(!seen.has(k)) order.push(k); });   // sections added after setup keep showing
+      C.layout.order = order;
+    }
+    if(!C.news.items.length) C.layout.order = (C.layout.order || []).filter(k => k !== 'news');
+    if(d.prices && d.prices.length && C.pricing){
+      const map = {};
+      d.prices.forEach(r => { map[norm(r.service) + '|' + norm(r.option)] = r; });
+      const use = (key, setPrice, setDays) => { const r = map[key]; if(!r) return; if(r.price != null && !isNaN(r.price)) setPrice(Number(r.price)); if(setDays && r.days) setDays(String(r.days)); };
+      (C.pricing.groups || []).forEach(g => g.tiers.forEach(t => {
+        if(t.addonRef != null) return;
+        if(t.speeds) t.speeds.forEach(sp => use(norm(t.title) + '|' + norm(sp.label), v => { sp.price = v; }, v => { sp.days = v; }));
+        else if(t.price != null && !t.priceLabel) use(norm(t.title) + '|', v => { t.price = v; });
+      }));
+      addonsOf(C.pricing).forEach(a => {
+        if(a.price != null) use(norm(a.title) + '|on its own', v => { a.price = v; });
+        if(a.comboPrice != null) use(norm(a.title) + '|with another service', v => { a.comboPrice = v; });
+      });
+    }
+    if(d.seeded && Array.isArray(d.shows) && C.events) C.events.items = d.shows.filter(x => x && x.name);
+    if(Object.prototype.hasOwnProperty.call(st, 'accepting_submissions') && !yes(st.accepting_submissions))
+      C.form.paused = String(st.paused_message || 'We’re not taking new submissions right now — check back soon!');
+    if(yes(st.announcement_on) && String(st.announcement_text || '').trim())
+      C.announcement = { text: String(st.announcement_text), link: String(st.announcement_link || '') };
+  }
+
+  const pristine = (cms.enabled === false || !ep) ? null : seedPayload();
+  const KEY = 'site-settings:' + ep;
+  let started = false;
+  function start(data){
+    if(started) return; started = true;
+    document.documentElement.classList.remove('cms-loading');
+    if(data){ try{ apply(data); }catch(err){ console.warn('Website settings skipped:', err); } }
+    __engine();
+    if(data && data.success && !data.seeded && pristine){
+      fetch(ep, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(pristine) }).catch(() => {});
+    }
+  }
+  if(!pristine || /[?&]nocms\b/.test(location.search)){ start(null); return; }
+  let cached = null;
+  try{ cached = JSON.parse(localStorage.getItem(KEY) || 'null'); }catch(_){}
+  document.documentElement.classList.add('cms-loading');
+  const timer = setTimeout(() => start(cached), cached ? (cms.waitCached || 1500) : (cms.wait || 3500));
+  fetch(ep + (ep.indexOf('?') === -1 ? '?' : '&') + 'action=site&t=' + Date.now())
+    .then(r => r.json())
+    .then(d => {
+      if(!d || !d.success) throw new Error('no settings');
+      try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(_){}
+      clearTimeout(timer); start(d);
+    })
+    .catch(() => { clearTimeout(timer); start(cached); });
 })();
 </script>
 </body>
