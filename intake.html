@@ -119,6 +119,30 @@ input:focus, textarea:focus{border-color:var(--accent); outline:none; box-shadow
 .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:var(--text); color:var(--bg); padding:11px 16px; border-radius:var(--r-sm); font-weight:700; z-index:9; max-width:calc(100% - 32px)}
 .toast[hidden]{display:none}
 footer{color:var(--muted); font-size:12px; text-align:center; padding:20px}
+
+nav.tabs{display:flex; gap:4px; overflow-x:auto}
+nav.tabs a{padding:8px 12px; border-radius:var(--r-sm); text-decoration:none; color:var(--muted); font-weight:700; white-space:nowrap}
+nav.tabs a[aria-current="page"]{background:var(--panel2); color:var(--text)}
+header.top .wrap{flex-wrap:wrap}
+.cust{display:grid; grid-template-columns:1fr auto; gap:4px 14px; text-align:left; width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:12px 14px; cursor:pointer; text-decoration:none; color:inherit}
+.cust:hover{border-color:var(--accent)}
+.cust .who{font-weight:800}
+.cust .amt{grid-row:1 / span 2; grid-column:2; align-self:center; text-align:right; font-weight:800; font-size:18px}
+.cust .amt small{display:block; font-weight:400; font-size:12px; color:var(--muted)}
+.stats{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin:14px 0 18px}
+.stat{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:12px}
+.stat b{display:block; font-family:var(--f-display); font-size:26px}
+.stat span{color:var(--muted); font-size:13px}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px}
+.chips button{border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:6px 12px; cursor:pointer; font-size:14px}
+.chips button[aria-pressed="true"]{background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:700}
+.crd{display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; text-decoration:none; color:inherit}
+.crd:hover{border-color:var(--accent)}
+.crd img, .crd .noimg{width:54px; height:72px; object-fit:cover; border-radius:4px; background:var(--panel2); border:1px solid var(--line)}
+.crd .t{font-weight:800}
+.crd .s{display:block; color:var(--muted); font-size:13px}
+.crd .r{text-align:right; font-size:14px}
+h2.sec{font-size:20px; margin:22px 0 10px}
 .stctl{display:grid; gap:8px; justify-items:end}
 .stctl select{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; min-height:40px; font-weight:700; max-width:230px}
 .stctl select:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
@@ -226,7 +250,7 @@ async function loadOrder(id, num){
   try { const d = await api({ action: 'order', id }); take(d); render(); }
   catch (err) { if (PIN) app.innerHTML = `<button class="btn ghost small back" onclick="location.hash=''">All orders</button><p class="err">${esc(err.message)}</p>`; }
 }
-function take(d){ O = d.order; STAGES = d.stages || STAGES; STAGE_EMAILS = d.stageEmails || STAGE_EMAILS; }
+function take(d){ ALL = null; O = d.order; STAGES = d.stages || STAGES; STAGE_EMAILS = d.stageEmails || STAGE_EMAILS; }
 function render(){ if (VIEW.num != null && O.items.some(x => String(x.num) === VIEW.num)) renderCard(); else renderOrder(); }
 function statusCtl(it){
   const st = it.status, opts = (STAGES.indexOf(st) === -1 ? [st] : []).concat(STAGES);
@@ -270,7 +294,7 @@ function renderOrder(){
   $('#refresh').onclick = () => loadOrder(O.id);
   const qt = O.quote || { lines: [], subtotal: 0, referral: 0, yours: 0, total: 0, notes: [] };
   app.innerHTML =
-    `<button class="btn ghost small back" id="back">All orders</button>` +
+    `<button class="btn ghost small back" id="back">Back</button>` +
     `<div class="ohead"><div><h1>${esc(O.name || 'No name')}</h1><div class="contact">` +
       `<span class="muted">${esc(O.ref)}, ${esc(when(O.at))}</span>` +
       (O.email ? `<a href="mailto:${esc(O.email)}">${esc(O.email)}</a>` : '') + (O.phone ? `<a href="tel:${esc(O.phone.replace(/[^+\d]/g, ''))}">${esc(O.phone)}</a>` : '') +
@@ -290,7 +314,7 @@ function renderOrder(){
       O.items.map(it => `<div class="crow"><span><a href="#${encodeURIComponent(O.id)}/${encodeURIComponent(it.num)}">${esc(cap(C.item))} ${esc(it.num)}: ${esc(it.name || 'Unnamed')}</a>` +
         `<span class="sub">${esc(it.service || '')}</span></span>${statusCtl(it)}</div>`).join('') + `</section>` +
     O.items.map(it => cardHtml(it, false)).join('');
-  $('#back').onclick = () => { location.hash = ''; };
+  $('#back').onclick = () => { location.hash = BACKTO; };
   $('#discgo').onclick = () => save({ action: 'discount', id: O.id, value: $('#disc').value.trim() }, 'Discount applied');
   if ($('#discclear')) $('#discclear').onclick = () => save({ action: 'discount', id: O.id, value: '' }, 'Discount removed');
   $('#disc').addEventListener('keydown', e => { if (e.key === 'Enter') $('#discgo').click(); });
@@ -333,6 +357,88 @@ async function save(body, done){
   catch (err) { toast(err.message); }
 }
 
+
+/* ---------- Customers + Cards (all orders) ---------- */
+let ALL = null, cq = '', kq = '', kstage = 'open', BACKTO = '';
+const custKey = o => (o.email || '').toLowerCase() || (o.phone || '').replace(/[^\d]/g, '') || ('name:' + (o.name || '').trim().toLowerCase());
+async function loadAll(){
+  try { ALL = await api({ action: 'all' }); return true; }
+  catch (err) { if (PIN) app.innerHTML = `<p class="err">${esc(err.message)}</p>`; return false; }
+}
+function customers(){
+  const map = new Map();
+  ALL.orders.forEach(o => {
+    const k = custKey(o); if (!map.has(k)) map.set(k, { key: k, orders: [], name: '', email: '', phone: '', address: '' });
+    const c = map.get(k); c.orders.push(o);
+    if (!c.last || o.at > c.last.at) { c.last = o; c.name = o.name || c.name; c.email = o.email || c.email; c.phone = o.phone || c.phone; c.address = o.address || c.address; }
+  });
+  return [...map.values()].map(c => {
+    const ids = new Set(c.orders.map(o => o.id)), cards = ALL.cards.filter(x => ids.has(x.id));
+    const done = ALL.doneStages || [];
+    return Object.assign(c, { cards, total: c.orders.reduce((a, o) => a + (o.total || 0), 0),
+      open: c.orders.filter(o => !done.includes(o.status)).length });
+  }).sort((a, b) => (b.last.at || '').localeCompare(a.last.at || ''));
+}
+function setNav(active){
+  const n = $('#tabs') || (() => { const x = document.createElement('nav'); x.id = 'tabs'; x.className = 'tabs'; x.setAttribute('aria-label', 'Sections'); $('header.top .wrap').insertBefore(x, $('#hdr')); return x; })();
+  n.innerHTML = [['orders', '#', 'Orders'], ['customers', '#customers', 'Customers'], ['cards', '#cards', cap(C.items)]]
+    .map(([k, h, l]) => `<a href="${h}"${k === active ? ' aria-current="page"' : ''}>${l}</a>`).join('');
+}
+function hdrRefresh(fn){ $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`; $('#refresh').onclick = fn; }
+const cardRow = (x, order) => `<a class="crd" href="#${encodeURIComponent(x.id)}/${encodeURIComponent(x.num)}">` +
+  (x.photo ? `<img src="${esc(thumb(x.photo))}" alt="" loading="lazy">` : '<span class="noimg"></span>') +
+  `<span><span class="t">${esc(x.name || 'Unnamed')}</span><span class="s">${esc(x.service || '')}</span>` +
+  `<span class="s">${order ? esc(order.name || '') + ', ' : ''}${esc(order ? order.ref : '')}${x.before ? ', before photos ' + x.before : ''}${x.after ? ', after photos ' + x.after : ''}</span></span>` +
+  `<span class="r"><span class="status${/cancel/i.test(x.status) ? ' cancel' : (ALL.doneStages || []).includes(x.status) ? ' done' : ''}">${esc(x.status)}</span><br><b>${/cancel/i.test(x.status) ? 'Not charged' : money(x.quote)}</b></span></a>`;
+
+async function showCustomers(){
+  setNav('customers'); hdrRefresh(async () => { ALL = null; showCustomers(); });
+  if (!ALL) { app.innerHTML = '<p class="muted">Loading customers…</p>'; if (!(await loadAll())) return; }
+  const list = customers(), shown = list.filter(c => !cq || (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().includes(cq));
+  app.innerHTML = `<div class="toolbar"><input type="search" id="cq" placeholder="Search name, email or phone" value="${esc(cq)}" aria-label="Search customers"></div>` +
+    `<div class="stats"><div class="stat"><b>${list.length}</b><span>${list.length === 1 ? 'customer' : 'customers'}</span></div><div class="stat"><b>${list.filter(c => c.orders.length > 1).length}</b><span>repeat</span></div>` +
+    `<div class="stat"><b>${list.filter(c => c.open).length}</b><span>with open orders</span></div><div class="stat"><b>${money(list.reduce((a, c) => a + c.total, 0))}</b><span>quoted, all time</span></div></div>` +
+    `<div class="orders">${shown.length ? shown.map(c => `<a class="cust" href="#customer=${encodeURIComponent(c.key)}"><span class="who">${esc(c.name || 'No name')}</span>` +
+      `<span class="amt">${money(c.total)}<small>quoted</small></span><span class="tags">${c.email ? `<span class="tag">${esc(c.email)}</span>` : ''}${c.phone ? `<span class="tag">${esc(c.phone)}</span>` : ''}` +
+      `<span class="tag">${c.orders.length} ${c.orders.length === 1 ? 'order' : 'orders'}</span><span class="tag">${c.cards.length} ${c.cards.length === 1 ? esc(C.item) : esc(C.items)}</span>` +
+      `<span class="tag">Last order ${esc(when(c.last.at).split(',')[0])}</span>${c.open ? `<span class="tag warn">${c.open} open</span>` : ''}</span></a>`).join('')
+      : `<div class="empty">${cq ? 'No customers match that search.' : 'No customers yet.'}</div>`}</div>`;
+  const qi = $('#cq'); qi.addEventListener('input', () => { cq = qi.value.trim().toLowerCase(); const p = qi.selectionStart; showCustomers(); const n = $('#cq'); n.focus(); n.setSelectionRange(p, p); });
+}
+async function showCustomer(key){
+  setNav('customers'); hdrRefresh(async () => { ALL = null; showCustomer(key); });
+  if (!ALL) { app.innerHTML = '<p class="muted">Loading customer…</p>'; if (!(await loadAll())) return; }
+  const c = customers().find(x => x.key === key);
+  if (!c) { app.innerHTML = `<a class="btn ghost small back" href="#customers">All customers</a><p class="err">Customer not found.</p>`; return; }
+  const byId = Object.fromEntries(c.orders.map(o => [o.id, o])), done = ALL.doneStages || [];
+  app.innerHTML = `<a class="btn ghost small back" href="#customers" style="display:inline-block;text-decoration:none">All customers</a>` +
+    `<div class="ohead"><div><h1>${esc(c.name || 'No name')}</h1><div class="contact">` +
+    (c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '') + (c.phone ? `<a href="tel:${esc(c.phone.replace(/[^+\d]/g, ''))}">${esc(c.phone)}</a>` : '') +
+    (c.address ? `<span class="muted">${esc(c.address)}</span>` : '') + `</div></div></div>` +
+    `<div class="stats"><div class="stat"><b>${c.orders.length}</b><span>${c.orders.length === 1 ? 'order' : 'orders'}</span></div><div class="stat"><b>${c.cards.length}</b><span>${esc(C.items)}</span></div>` +
+    `<div class="stat"><b>${money(c.total)}</b><span>quoted</span></div><div class="stat"><b>${c.open}</b><span>open ${c.open === 1 ? 'order' : 'orders'}</span></div></div>` +
+    `<h2 class="sec">Orders</h2><div class="orders">${c.orders.slice().sort((a, b) => (b.at || '').localeCompare(a.at || '')).map(o =>
+      `<a class="cust" href="#${encodeURIComponent(o.id)}"><span class="who">${esc(o.ref)}</span><span class="amt">${money(o.total)}<small>quote</small></span>` +
+      `<span class="tags"><span class="tag">${esc(when(o.at))}</span><span class="tag">${o.count} ${o.count === 1 ? esc(C.item) : esc(C.items)}</span><span class="tag${done.includes(o.status) ? ' ok' : ''}">${esc(o.status)}</span>` +
+      `<span class="tag">${esc(o.delivery)}</span>${o.referralCode ? `<span class="tag">Referral ${esc(o.referralCode)}</span>` : ''}${o.flagged ? '<span class="tag warn">Quote needs a look</span>' : ''}</span></a>`).join('')}</div>` +
+    `<h2 class="sec">${esc(cap(C.items))}</h2><div class="orders">${c.cards.map(x => cardRow(x, byId[x.id])).join('')}</div>`;
+}
+async function showCards(){
+  setNav('cards'); hdrRefresh(async () => { ALL = null; showCards(); });
+  if (!ALL) { app.innerHTML = '<p class="muted">Loading ' + esc(C.items) + '…</p>'; if (!(await loadAll())) return; }
+  const byId = Object.fromEntries(ALL.orders.map(o => [o.id, o])), done = ALL.doneStages || [];
+  const count = st => ALL.cards.filter(x => st === 'open' ? !done.includes(x.status) : st === 'all' ? true : x.status === st).length;
+  const chips = [['open', 'In progress'], ['all', 'All']].concat(ALL.stages.map(s => [s, s]));
+  const shown = ALL.cards.filter(x => (kstage === 'open' ? !done.includes(x.status) : kstage === 'all' ? true : x.status === kstage) &&
+    (!kq || (x.name + ' ' + x.service + ' ' + (byId[x.id] ? byId[x.id].name + ' ' + byId[x.id].ref : '')).toLowerCase().includes(kq)))
+    .sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  app.innerHTML = `<div class="toolbar"><input type="search" id="kq" placeholder="Search ${esc(C.item)}, service, customer or reference" value="${esc(kq)}" aria-label="Search ${esc(C.items)}"></div>` +
+    `<div class="chips" role="group" aria-label="Filter by stage">${chips.map(([k, l]) => `<button data-k="${esc(k)}" aria-pressed="${kstage === k}">${esc(l)} (${count(k)})</button>`).join('')}</div>` +
+    `<div class="orders">${shown.length ? shown.map(x => cardRow(x, byId[x.id])).join('') : `<div class="empty">No ${esc(C.items)} here.</div>`}</div>`;
+  $$('.chips button').forEach(b => b.onclick = () => { kstage = b.dataset.k; showCards(); });
+  const qi = $('#kq'); qi.addEventListener('input', () => { kq = qi.value.trim().toLowerCase(); const p = qi.selectionStart; showCards(); const n = $('#kq'); n.focus(); n.setSelectionRange(p, p); });
+}
+
 /* ---------- uploads ---------- */
 function shrink(file){
   return new Promise(resolve => {
@@ -358,12 +464,18 @@ async function upload(file){
 /* ---------- routing ---------- */
 function route(){
   if (!PIN) return showPin();
-  const [id, num] = location.hash.slice(1).split('/').map(decodeURIComponent);
+  const h = location.hash.slice(1);
+  if (h === 'customers') { window.scrollTo(0, 0); return showCustomers(); }
+  if (h.indexOf('customer=') === 0) { window.scrollTo(0, 0); return showCustomer(decodeURIComponent(h.slice(9))); }
+  if (h === 'cards') { window.scrollTo(0, 0); return showCards(); }
+  setNav('orders');
+  const [id, num] = h.split('/').map(decodeURIComponent);
   if (id && O && O.id === id && num !== undefined && O.items.some(x => String(x.num) === num)) { VIEW.num = num; window.scrollTo(0, 0); render(); }
   else if (id && O && O.id === id && num === undefined && VIEW.num != null) { VIEW.num = null; render(); }
   else if (id) loadOrder(id, num); else if (LIST) renderList(); else loadList();
 }
 window.addEventListener('hashchange', () => { if (!location.hash) LIST = null; route(); });
+window.addEventListener('hashchange', e => { const old = (e.oldURL.split('#')[1] || ''); if (!old || old === 'customers' || old === 'cards' || old.indexOf('customer=') === 0) BACKTO = old; });
 route();
 })();
 </script>
