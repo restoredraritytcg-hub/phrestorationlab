@@ -143,6 +143,57 @@ header.top .wrap{flex-wrap:wrap}
 .crd .s{display:block; color:var(--muted); font-size:13px}
 .crd .r{text-align:right; font-size:14px}
 h2.sec{font-size:20px; margin:22px 0 10px}
+
+.ed{margin-bottom:14px; display:grid; gap:12px}
+.ed h2{font-size:20px}
+.edhead{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+label.f, div.f{display:grid; gap:6px; font-weight:700; font-size:15px}
+label.f input, label.f textarea, .lp select, .lp input, .ed select{font-weight:400}
+.lp{display:grid; gap:8px}
+.lp select, .ed select{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; min-height:44px; width:100%}
+.g2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media (max-width:620px){ .g2{grid-template-columns:1fr} }
+.sw{display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:700}
+.sw input{appearance:none; -webkit-appearance:none; width:46px; height:28px; border-radius:999px; background:var(--line); position:relative; cursor:pointer; flex:none; transition:background .15s; margin:0}
+.sw input::after{content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:transform .15s}
+.sw input:not(:checked){box-shadow:inset 0 0 0 1px var(--muted)}
+.sw input:checked{background:var(--accent)}
+.sw input:checked::after{transform:translateX(18px)}
+.sw.compact{font-weight:400; font-size:14px; color:var(--muted)}
+.savebar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px}
+.seclist{list-style:none; margin:0; padding:0}
+.seclist li{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); flex-wrap:wrap}
+.seclist li:last-child{border-bottom:0}
+.seclist .nm{font-weight:700}
+.seclist .ctl{display:flex; gap:6px; align-items:center}
+.ptab{width:100%; border-collapse:collapse}
+.ptab th{text-align:left; font-size:13px; color:var(--muted); padding:6px; border-bottom:1px solid var(--line)}
+.ptab td{padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:middle}
+.ptab tr.grp td{font-family:var(--f-display); text-transform:var(--display-case); font-size:16px; padding-top:16px}
+.ptab tr.chg td{background:color-mix(in srgb, var(--accent) 12%, transparent)}
+.ptab input{min-height:40px; padding:6px 8px}
+.dollar{display:flex; align-items:center; gap:4px; max-width:120px}
+.tablewrap{overflow-x:auto}
+.elist{display:grid; gap:8px}
+.eitem{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; flex-wrap:wrap}
+.eitem.dim{opacity:.6}
+.einfo{display:grid; gap:2px; min-width:0; flex:1 1 220px}
+.einfo .muted{font-size:14px}
+.clamp{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.ectl{display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.del[data-armed="1"]{color:var(--bad); border-color:var(--bad)}
+.eform{display:grid; gap:12px; width:100%; padding:14px; border:1px solid var(--accent); border-radius:var(--r-sm); background:var(--panel2); margin:6px 0}
+.ggrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:12px}
+.gitem{margin:0; border:1px solid var(--line); border-radius:var(--r-sm); padding:8px; display:grid; gap:6px; align-content:start}
+.gitem.dim img{opacity:.45}
+.gitem img{width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:4px; background:var(--panel2)}
+.gitem figcaption{display:grid; font-size:14px}
+.gctl{display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.qlist{display:grid; gap:10px}
+.qrow{display:grid; grid-template-columns:60px 1fr; gap:10px; align-items:start}
+.qimg{width:60px; height:80px; object-fit:cover; border-radius:4px; background:var(--panel); display:grid; place-items:center; border:1px solid var(--line)}
+.qf{display:grid; gap:6px}
+.sitehead{margin-bottom:10px}
 .stctl{display:grid; gap:8px; justify-items:end}
 .stctl select{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; min-height:40px; font-weight:700; max-width:230px}
 .stctl select:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
@@ -198,7 +249,7 @@ async function api(body){
   const res = await fetch(C.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ type: 'intake', pin: PIN }, body)) });
   const d = await res.json();
   if (d && d.badPin) { PIN = ''; try { sessionStorage.removeItem('intake-pin'); } catch (_) {} showPin(d.error); throw new Error(d.error); }
-  if (!d || !d.success) throw new Error((d && d.error) || 'Something went wrong — try again.');
+  if (!d || !d.success) throw new Error(String((d && d.error) || 'Something went wrong — try again.').replace(/^Error:\s*/, ''));
   return d;
 }
 
@@ -381,7 +432,7 @@ function customers(){
 }
 function setNav(active){
   const n = $('#tabs') || (() => { const x = document.createElement('nav'); x.id = 'tabs'; x.className = 'tabs'; x.setAttribute('aria-label', 'Sections'); $('header.top .wrap').insertBefore(x, $('#hdr')); return x; })();
-  n.innerHTML = [['orders', '#', 'Orders'], ['customers', '#customers', 'Customers'], ['cards', '#cards', cap(C.items)]]
+  n.innerHTML = [['orders', '#', 'Orders'], ['customers', '#customers', 'Customers'], ['cards', '#cards', cap(C.items)], ['site', '#site', 'Website']]
     .map(([k, h, l]) => `<a href="${h}"${k === active ? ' aria-current="page"' : ''}>${l}</a>`).join('');
 }
 function hdrRefresh(fn){ $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`; $('#refresh').onclick = fn; }
@@ -439,6 +490,237 @@ async function showCards(){
   const qi = $('#kq'); qi.addEventListener('input', () => { kq = qi.value.trim().toLowerCase(); const p = qi.selectionStart; showCards(); const n = $('#kq'); n.focus(); n.setSelectionRange(p, p); });
 }
 
+
+/* ---------- Website editor ---------- */
+let SITE = null, SUB = 'status';
+const SUBS = [['status', 'Status & announcement'], ['sections', 'Sections'], ['prices', 'Prices'], ['shows', 'Shows'], ['news', 'News'], ['gallery', 'Gallery']];
+const deliverUrl = u => /res\.cloudinary\.com\/[^/]+\/image\/upload\/(?![a-z]_)/.test(u) ? u.replace('/image/upload/', '/image/upload/f_auto,q_auto,c_limit,w_1600/') : u;
+const siteLink = () => location.origin + location.pathname.replace(/intake\.html?$/, '');
+const yesv = v => v === true || /^(true|yes|1)$/i.test(String(v == null ? '' : v));
+const niceDate = s => { if (!s) return ''; const d = new Date(s + 'T12:00:00'); return isNaN(d) ? s : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); };
+async function siteSave(body, done){
+  const d = await api(Object.assign({ action: 'siteSave' }, body));
+  SITE = d; renderSite();
+  toast((done || 'Saved') + ' — live on your site within a minute');
+  return d;
+}
+function busy(btn, on, label){ if (!btn) return; btn.disabled = on; if (on) { btn.dataset.l = btn.textContent; btn.textContent = label || 'Saving…'; } else if (btn.dataset.l) btn.textContent = btn.dataset.l; }
+async function guarded(btn, fn){ busy(btn, true); try { await fn(); } catch (err) { toast(err.message); busy(btn, false); } }
+function linkPick(id, current){
+  const secs = (SITE.sections || []).filter(s => s.key !== 'hero');
+  const isUrl = current && current[0] !== '#';
+  return `<div class="lp" id="${id}"><select data-lp aria-label="Link to">` +
+    `<option value="">No link</option>${secs.map(s => `<option value="#${esc(s.key)}"${current === '#' + s.key ? ' selected' : ''}>Section: ${esc(s.label)}</option>`).join('')}` +
+    `<option value="url"${isUrl ? ' selected' : ''}>A web address…</option></select>` +
+    `<input type="text" data-lpu placeholder="https://…" value="${isUrl ? esc(current) : ''}"${isUrl ? '' : ' hidden'}></div>`;
+}
+function wireLink(id){ const w = $('#' + id); const sel = $('[data-lp]', w), u = $('[data-lpu]', w); sel.onchange = () => { u.hidden = sel.value !== 'url'; if (!u.hidden) u.focus(); }; return () => sel.value === 'url' ? u.value.trim() : sel.value; }
+const sw = (id, on, label) => `<label class="sw"><input type="checkbox" role="switch" id="${id}"${on ? ' checked' : ''}><span>${label}</span></label>`;
+
+async function showSite(sub){
+  setNav('site'); SUB = sub || SUB;
+  hdrRefresh(async () => { SITE = null; showSite(SUB); });
+  if (!SITE) { app.innerHTML = '<p class="muted">Loading your website settings…</p>'; try { SITE = await api({ action: 'site' }); } catch (err) { app.innerHTML = `<p class="err">${esc(err.message)}</p>`; return; } }
+  renderSite();
+}
+function renderSite(){
+  if (!SITE.seeded) {
+    app.innerHTML = `<div class="panel"><h2 style="margin-bottom:8px">Almost ready</h2><p>Your website hasn’t set up its editable settings yet. Open <a href="${esc(siteLink())}" target="_blank" rel="noopener">your website</a> once, wait a few seconds, then tap Refresh above.</p></div>`;
+    return;
+  }
+  const y = scrollY;
+  app.innerHTML = `<div class="sitehead"><p class="muted">Changes go live on <a href="${esc(siteLink())}" target="_blank" rel="noopener">your website</a> within about a minute.</p></div>` +
+    `<div class="chips" role="tablist" aria-label="What to edit">${SUBS.map(([k, l]) => `<button role="tab" data-sub="${k}" aria-pressed="${SUB === k}" aria-selected="${SUB === k}">${l}</button>`).join('')}</div><div id="sub"></div>`;
+  $$('[data-sub]').forEach(b => b.onclick = () => { location.hash = '#site=' + b.dataset.sub; });
+  ({ status: subStatus, sections: subSections, prices: subPrices, shows: subShows, news: subNews, gallery: subGallery })[SUB]($('#sub'));
+  scrollTo(0, y);
+}
+
+/* Status & announcement */
+function subStatus(box){
+  const st = SITE.settings, open = !Object.prototype.hasOwnProperty.call(st, 'accepting_submissions') || yesv(st.accepting_submissions), ann = yesv(st.announcement_on);
+  box.innerHTML = `<section class="panel ed"><h2>Submissions</h2>${sw('acc', open, 'Accepting new submissions')}` +
+    `<label class="f" id="pmw"${open ? ' hidden' : ''}>Message shown instead of the form<input type="text" id="pm" maxlength="200" value="${esc(st.paused_message || '')}" placeholder="e.g. Back from vacation Jan 2!"></label></section>` +
+    `<section class="panel ed"><h2>Announcement bar</h2><p class="muted">A short message across the top of every page.</p>${sw('ann', ann, 'Show the announcement bar')}` +
+    `<div id="annw"${ann ? '' : ' hidden'}><label class="f">Message<input type="text" id="at" maxlength="200" value="${esc(st.announcement_text || '')}" placeholder="e.g. Closed Nov 27–30 — submissions reopen Dec 1"></label>` +
+    `<div class="f"><b>Clicking it goes to</b>${linkPick('al', String(st.announcement_link || ''))}</div></div></section>` +
+    `<section class="panel ed"><h2>News section title</h2><label class="f">Title<input type="text" id="nh" maxlength="80" value="${esc(st.news_heading || 'News & coming soon')}"></label></section>` +
+    `<div class="savebar"><button class="btn" id="save1">Save changes</button></div>`;
+  const al = wireLink('al');
+  $('#acc').onchange = () => { $('#pmw').hidden = $('#acc').checked; };
+  $('#ann').onchange = () => { $('#annw').hidden = !$('#ann').checked; };
+  $('#save1').onclick = e => guarded(e.currentTarget, () => siteSave({ what: 'settings', data: {
+    accepting_submissions: $('#acc').checked, paused_message: $('#pm').value, announcement_on: $('#ann').checked,
+    announcement_text: $('#at').value, announcement_link: al(), news_heading: $('#nh').value } }));
+}
+
+/* Sections: show/hide + order */
+function subSections(box){
+  let rows = SITE.sections.map(s => Object.assign({}, s));
+  const draw = () => {
+    box.innerHTML = `<section class="panel ed"><h2>Sections</h2><p class="muted">Switch sections on or off and move them up or down the page.</p><ol class="seclist">` +
+      rows.map((s, i) => `<li><span class="nm">${esc(s.label)}</span><span class="ctl">` +
+        `<button class="btn ghost small" data-up="${i}" aria-label="Move ${esc(s.label)} up"${i ? '' : ' disabled'}>Up</button>` +
+        `<button class="btn ghost small" data-dn="${i}" aria-label="Move ${esc(s.label)} down"${i < rows.length - 1 ? '' : ' disabled'}>Down</button>` +
+        `<label class="sw compact"><input type="checkbox" role="switch" data-i="${i}"${s.show ? ' checked' : ''} aria-label="Show ${esc(s.label)}"><span>${s.show ? 'Shown' : 'Hidden'}</span></label></span></li>`).join('') +
+      `</ol></section><div class="savebar"><button class="btn" id="save2">Save sections</button></div>`;
+    $$('[data-up]', box).forEach(b => b.onclick = () => { const i = +b.dataset.up; [rows[i - 1], rows[i]] = [rows[i], rows[i - 1]]; draw(); $(`[data-up="${i - 1}"]`, box)?.focus(); });
+    $$('[data-dn]', box).forEach(b => b.onclick = () => { const i = +b.dataset.dn; [rows[i + 1], rows[i]] = [rows[i], rows[i + 1]]; draw(); $(`[data-dn="${i + 1}"]`, box)?.focus(); });
+    $$('[data-i]', box).forEach(c => c.onchange = () => { rows[+c.dataset.i].show = c.checked; c.nextElementSibling.textContent = c.checked ? 'Shown' : 'Hidden'; });
+    $('#save2').onclick = e => guarded(e.currentTarget, () => siteSave({ what: 'sections', data: { rows: rows.map(r => ({ key: r.key, show: r.show })) } }, 'Sections saved'));
+  };
+  draw();
+}
+
+/* Prices */
+function subPrices(box){
+  let group = null, html = '';
+  SITE.prices.forEach((p, i) => {
+    if (p.group !== group) { group = p.group; html += `<tr class="grp"><td colspan="3">${esc(group || 'Prices')}</td></tr>`; }
+    html += `<tr data-i="${i}"><td>${esc(p.service)}${p.option ? `<span class="muted"> — ${esc(p.option)}</span>` : ''}</td>` +
+      `<td><span class="dollar">$<input type="text" inputmode="decimal" data-p value="${p.price == null ? '' : esc(p.price)}" aria-label="Price for ${esc(p.service)} ${esc(p.option)}"></span></td>` +
+      `<td><input type="text" data-d value="${esc(p.days)}" placeholder="—" aria-label="Turnaround for ${esc(p.service)} ${esc(p.option)}"></td></tr>`;
+  });
+  box.innerHTML = `<section class="panel ed"><h2>Prices</h2><p class="muted">These update your price cards, the price estimate, the order form and your quotes.</p>` +
+    `<div class="tablewrap"><table class="ptab"><thead><tr><th>Service</th><th>Price</th><th>Turnaround</th></tr></thead><tbody>${html}</tbody></table></div></section>` +
+    `<div class="savebar"><button class="btn" id="save3">Save prices</button><span class="muted" id="pchg"></span></div>`;
+  const changed = () => $$('tr[data-i]', box).filter(tr => { const p = SITE.prices[tr.dataset.i]; return $('[data-p]', tr).value.trim() !== String(p.price == null ? '' : p.price) || $('[data-d]', tr).value.trim() !== p.days; });
+  const mark = () => { $$('tr[data-i]', box).forEach(tr => tr.classList.remove('chg')); const c = changed(); c.forEach(tr => tr.classList.add('chg')); $('#pchg').textContent = c.length ? c.length + ' changed' : ''; };
+  $$('input', box).forEach(i => i.addEventListener('input', mark));
+  $('#save3').onclick = e => guarded(e.currentTarget, async () => {
+    const rows = changed().map(tr => { const p = SITE.prices[tr.dataset.i]; return { row: p.row, service: p.service, option: p.option, price: $('[data-p]', tr).value.trim(), days: $('[data-d]', tr).value.trim() }; });
+    if (!rows.length) { toast('No price changes to save.'); busy(e.currentTarget, false); return; }
+    await siteSave({ what: 'prices', data: { rows } }, rows.length === 1 ? 'Price saved' : rows.length + ' prices saved');
+  });
+}
+
+/* Shared list editor for Shows and News */
+function listEditor(box, cfg){
+  const items = cfg.items();
+  box.innerHTML = `<section class="panel ed"><div class="edhead"><h2>${cfg.title}</h2><button class="btn small" id="addnew">${cfg.addLabel}</button></div>` +
+    (cfg.intro ? `<p class="muted">${cfg.intro}</p>` : '') + `<div id="formslot"></div><div class="elist">` +
+    (items.length ? items.map((x, i) => `<div class="eitem${cfg.dim && cfg.dim(x) ? ' dim' : ''}" data-i="${i}"><div class="einfo">${cfg.summary(x)}</div><div class="ectl">` +
+      (cfg.toggle ? cfg.toggle(x, i) : '') + `<button class="btn ghost small" data-edit="${i}">Edit</button><button class="btn ghost small del" data-del="${i}">Delete</button></div></div>`).join('')
+      : `<div class="empty">${cfg.empty}</div>`) + `</div></section>`;
+  const openForm = (x, i) => {
+    const slot = i == null ? $('#formslot', box) : $(`.eitem[data-i="${i}"]`, box);
+    $$('.eform', box).forEach(f => f.remove());
+    slot.insertAdjacentHTML(i == null ? 'afterbegin' : 'beforeend', `<form class="eform">${cfg.form(x || {})}<div class="savebar"><button class="btn" type="submit">${i == null ? cfg.addLabel : 'Save changes'}</button><button class="btn ghost" type="button" data-cancel>Cancel</button></div></form>`);
+    const f = $('.eform', box), getLink = cfg.wire ? cfg.wire(f) : null;
+    $('[data-cancel]', f).onclick = () => f.remove();
+    f.querySelector('input, textarea').focus();
+    f.onsubmit = e => { e.preventDefault(); const btn = $('button[type=submit]', f);
+      guarded(btn, () => siteSave(i == null ? { what: cfg.what, op: 'add', data: cfg.collect(f, getLink) }
+        : { what: cfg.what, op: 'update', row: x.row, was: cfg.was(x), data: cfg.collect(f, getLink) }, i == null ? cfg.added : 'Saved')); };
+  };
+  $('#addnew', box).onclick = () => openForm(null, null);
+  $$('[data-edit]', box).forEach(b => b.onclick = () => openForm(items[+b.dataset.edit], +b.dataset.edit));
+  $$('[data-del]', box).forEach(b => b.onclick = () => {
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Tap again to delete'; setTimeout(() => { b.dataset.armed = ''; b.textContent = 'Delete'; }, 4000); return; }
+    const x = items[+b.dataset.del]; guarded(b, () => siteSave({ what: cfg.what, op: 'delete', row: x.row, was: cfg.was(x) }, 'Deleted'));
+  });
+  if (cfg.after) cfg.after(box, items);
+}
+function subShows(box){
+  const today = new Date().toISOString().slice(0, 10);
+  listEditor(box, {
+    what: 'shows', title: 'Shows & events', addLabel: 'Add a show', added: 'Show added', empty: 'No shows yet. Add one and it appears in your events section.',
+    intro: 'Past shows drop off your site automatically.',
+    items: () => SITE.shows.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')),
+    dim: x => (x.endDate || x.date) < today,
+    summary: x => `<b>${esc(x.name)}</b><span class="muted">${esc(niceDate(x.date))}${x.endDate ? ' – ' + esc(niceDate(x.endDate)) : ''}${(x.endDate || x.date) < today ? ' (past)' : ''}</span>` +
+      (x.location ? `<span class="muted">${esc(x.location)}</span>` : '') + (x.time ? `<span class="muted">${esc(x.time)}</span>` : ''),
+    was: x => x.name,
+    form: x => `<label class="f">Event name<input type="text" name="name" maxlength="100" value="${esc(x.name || '')}" required></label>` +
+      `<div class="g2"><label class="f">Start date<input type="date" name="date" value="${esc(x.date || '')}" required></label><label class="f">End date <span class="muted">(optional)</span><input type="date" name="endDate" value="${esc(x.endDate || '')}"></label></div>` +
+      `<label class="f">Location<input type="text" name="location" maxlength="200" value="${esc(x.location || '')}" placeholder="Venue, city"></label>` +
+      `<label class="f">Time or table number <span class="muted">(optional)</span><input type="text" name="time" maxlength="120" value="${esc(x.time || '')}" placeholder="e.g. 10am–6pm, Table 214"></label>` +
+      `<label class="f">Event link <span class="muted">(optional)</span><input type="text" name="link" value="${esc(x.link || '')}" placeholder="https://…"></label>`,
+    collect: f => ({ name: f.elements.name.value, date: f.elements.date.value, endDate: f.elements.endDate.value, location: f.elements.location.value, time: f.elements.time.value, link: f.elements.link.value.trim() })
+  });
+}
+function subNews(box){
+  listEditor(box, {
+    what: 'news', title: 'News posts', addLabel: 'Add a post', added: 'Post published', empty: 'No posts yet. Your News section appears once you publish one.',
+    items: () => SITE.news.slice().reverse(),
+    dim: x => !x.show,
+    summary: x => `<b>${esc(x.title || x.message.slice(0, 60))}</b>${x.date ? `<span class="muted">${esc(niceDate(x.date))}</span>` : ''}<span class="muted clamp">${esc(x.message)}</span>`,
+    toggle: (x, i) => `<label class="sw compact"><input type="checkbox" role="switch" data-pub="${i}"${x.show ? ' checked' : ''} aria-label="Published"><span>${x.show ? 'Published' : 'Draft'}</span></label>`,
+    was: x => x.title,
+    form: x => `<label class="f">Title<input type="text" name="title" maxlength="120" value="${esc(x.title || '')}" placeholder="e.g. Holiday turnaround"></label>` +
+      `<label class="f">Message<textarea name="message" maxlength="1000" rows="4">${esc(x.message || '')}</textarea></label>` +
+      `<div class="g2"><label class="f">Date shown <span class="muted">(optional)</span><input type="date" name="date" value="${esc(x.date || '')}"></label>` +
+      `<label class="f">Button text <span class="muted">(optional)</span><input type="text" name="buttonText" maxlength="40" value="${esc(x.buttonText || '')}" placeholder="e.g. See pricing"></label></div>` +
+      `<div class="f"><b>Button goes to</b>${linkPick('nl', x.buttonLink || '')}</div>` + sw('npub', x.show !== false, 'Published on the site'),
+    wire: f => wireLink('nl'),
+    collect: (f, getLink) => ({ title: f.elements.title.value, message: f.elements.message.value, date: f.elements.date.value, buttonText: f.elements.buttonText.value, buttonLink: getLink(), show: $('#npub', f).checked }),
+    after: (b2, items) => $$('[data-pub]', b2).forEach(c => c.onchange = () => { const x = items[+c.dataset.pub];
+      siteSave({ what: 'news', op: 'update', row: x.row, was: x.title, data: Object.assign({}, x, { show: c.checked }) }, c.checked ? 'Post published' : 'Post hidden').catch(err => { toast(err.message); c.checked = !c.checked; }); })
+  });
+}
+
+/* Gallery */
+function subGallery(box){
+  const g = SITE.gallery;
+  box.innerHTML = `<section class="panel ed"><div class="edhead"><h2>Gallery</h2><label class="btn small" for="gup">Add photos</label><input type="file" id="gup" accept="image/*,.heic,.heif" multiple hidden></div>` +
+    `<p class="muted">Photos here show first in your gallery, in this order. Tap a photo’s Edit to change its title.</p><div id="queue"></div>` +
+    (g.length ? `<div class="ggrid">${g.map((x, i) => `<figure class="gitem${x.show ? '' : ' dim'}" data-i="${i}"><img src="${esc(thumb(x.image || x.after))}" alt="${esc(x.title || 'Gallery photo')}" loading="lazy">` +
+      `<figcaption><b>${esc(x.title || 'Untitled')}</b>${x.subtitle ? `<span class="muted">${esc(x.subtitle)}</span>` : ''}${x.before ? '<span class="muted">Before &amp; after</span>' : ''}</figcaption>` +
+      `<div class="gctl"><button class="btn ghost small" data-l="${i}" aria-label="Move earlier"${i ? '' : ' disabled'}>←</button><button class="btn ghost small" data-r="${i}" aria-label="Move later"${i < g.length - 1 ? '' : ' disabled'}>→</button>` +
+      `<label class="sw compact"><input type="checkbox" role="switch" data-show="${i}"${x.show ? ' checked' : ''} aria-label="Show on site"><span>${x.show ? 'Shown' : 'Hidden'}</span></label></div>` +
+      `<div class="gctl"><button class="btn ghost small" data-ge="${i}">Edit</button><button class="btn ghost small del" data-gd="${i}">Delete</button></div></figure>`).join('')}</div>`
+      : `<div class="empty">No photos yet. Add some and they show in your gallery section.</div>`) + `</section>`;
+  const move = (i, j) => { const rows = g.map(x => ({ row: x.row, was: x.image })); [rows[i], rows[j]] = [rows[j], rows[i]]; siteSave({ what: 'galleryOrder', data: { rows } }, 'Order saved').catch(err => toast(err.message)); };
+  $$('[data-l]', box).forEach(b => b.onclick = () => move(+b.dataset.l, +b.dataset.l - 1));
+  $$('[data-r]', box).forEach(b => b.onclick = () => move(+b.dataset.r, +b.dataset.r + 1));
+  $$('[data-show]', box).forEach(c => c.onchange = () => { const x = g[+c.dataset.show];
+    siteSave({ what: 'gallery', op: 'update', row: x.row, was: x.image, data: Object.assign({}, x, { show: c.checked }) }, c.checked ? 'Photo shown' : 'Photo hidden').catch(err => { toast(err.message); c.checked = !c.checked; }); });
+  $$('[data-gd]', box).forEach(b => b.onclick = () => {
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Tap again'; setTimeout(() => { b.dataset.armed = ''; b.textContent = 'Delete'; }, 4000); return; }
+    const x = g[+b.dataset.gd]; guarded(b, () => siteSave({ what: 'gallery', op: 'delete', row: x.row, was: x.image }, 'Photo deleted'));
+  });
+  $$('[data-ge]', box).forEach(b => b.onclick = () => {
+    const x = g[+b.dataset.ge], fig = b.closest('.gitem'); $$('.eform', box).forEach(f => f.remove());
+    fig.insertAdjacentHTML('beforeend', `<form class="eform"><label class="f">Title<input type="text" name="title" maxlength="80" value="${esc(x.title)}"></label>` +
+      `<label class="f">Set or caption<input type="text" name="subtitle" maxlength="80" value="${esc(x.subtitle)}"></label><label class="f">Tag<input type="text" name="tag" maxlength="24" value="${esc(x.tag)}"></label>` +
+      `<div class="savebar"><button class="btn small" type="submit">Save</button><button class="btn ghost small" type="button" data-cancel>Cancel</button></div></form>`);
+    const f = $('.eform', fig); $('[data-cancel]', f).onclick = () => f.remove(); f.elements.title.focus();
+    f.onsubmit = e => { e.preventDefault(); guarded($('button[type=submit]', f), () => siteSave({ what: 'gallery', op: 'update', row: x.row, was: x.image,
+      data: Object.assign({}, x, { title: f.elements.title.value, subtitle: f.elements.subtitle.value, tag: f.elements.tag.value }) }, 'Photo saved')); };
+  });
+  $('#gup').onchange = async e => {
+    const files = Array.from(e.target.files); e.target.value = ''; if (!files.length) return;
+    const q = $('#queue', box);
+    q.innerHTML = `<form class="eform" id="gq"><p><b>New photos</b> <span class="muted" id="gqs">Uploading ${files.length}…</span></p><div class="qlist"></div>` +
+      `<div class="savebar"><button class="btn" type="submit" disabled>Add to gallery</button><button class="btn ghost" type="button" data-cancel>Cancel</button></div></form>`;
+    const f = $('#gq'), list = $('.qlist', f); $('[data-cancel]', f).onclick = () => { q.innerHTML = ''; };
+    let left = files.length;
+    for (const file of files) {
+      const row = document.createElement('div'); row.className = 'qrow'; row.innerHTML = `<span class="qimg">…</span><div class="qf"><input type="text" data-t placeholder="Title, e.g. Charizard" maxlength="80"><input type="text" data-s placeholder="Set or caption" maxlength="80"><input type="text" data-g placeholder="Tag (optional)" maxlength="24"></div>`;
+      list.appendChild(row);
+      try { const url = deliverUrl(await uploadTo(file, 'site/gallery')); row.dataset.url = url; $('.qimg', row).outerHTML = `<img class="qimg" src="${esc(thumb(url))}" alt="">`; }
+      catch (err) { $('.qimg', row).textContent = '!'; row.querySelector('.qf').insertAdjacentHTML('afterbegin', `<span class="err">${esc(err.message)}</span>`); }
+      if (--left === 0) { $('#gqs').textContent = ''; $('button[type=submit]', f).disabled = false; }
+    }
+    f.onsubmit = ev => { ev.preventDefault(); const btn = $('button[type=submit]', f);
+      guarded(btn, async () => {
+        const rows = $$('.qrow', list).filter(r => r.dataset.url);
+        const min = g.length ? Math.min(...g.map(x => x.order)) : 100;
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i];
+          await api({ action: 'siteSave', what: 'gallery', op: 'add', data: { image: r.dataset.url, title: $('[data-t]', r).value, subtitle: $('[data-s]', r).value, tag: $('[data-g]', r).value, order: min - (rows.length - i) * 10, show: true } });
+        }
+        SITE = await api({ action: 'site' }); renderSite(); toast((rows.length === 1 ? 'Photo added' : rows.length + ' photos added') + ' — live on your site within a minute');
+      }); };
+  };
+}
+async function uploadTo(file, folder){
+  if (!C.cloudinaryCloud || !C.cloudinaryPreset) throw new Error('Photo uploads aren’t set up — add Cloudinary to CONFIG.');
+  const fd = new FormData(); fd.append('file', await shrink(file)); fd.append('upload_preset', C.cloudinaryPreset); fd.append('folder', folder);
+  const res = await fetch('https://api.cloudinary.com/v1_1/' + encodeURIComponent(C.cloudinaryCloud) + '/image/upload', { method: 'POST', body: fd });
+  const d = await res.json(); if (!d.secure_url) throw new Error((d.error && d.error.message) || 'Upload failed'); return d.secure_url;
+}
+
 /* ---------- uploads ---------- */
 function shrink(file){
   return new Promise(resolve => {
@@ -468,6 +750,7 @@ function route(){
   if (h === 'customers') { window.scrollTo(0, 0); return showCustomers(); }
   if (h.indexOf('customer=') === 0) { window.scrollTo(0, 0); return showCustomer(decodeURIComponent(h.slice(9))); }
   if (h === 'cards') { window.scrollTo(0, 0); return showCards(); }
+  if (h === 'site' || h.indexOf('site=') === 0) { const sub = h.slice(5); if (sub && SUB !== sub) window.scrollTo(0, 0); return showSite(SUBS.some(x => x[0] === sub) ? sub : (sub ? 'status' : SUB)); }
   setNav('orders');
   const [id, num] = h.split('/').map(decodeURIComponent);
   if (id && O && O.id === id && num !== undefined && O.items.some(x => String(x.num) === num)) { VIEW.num = num; window.scrollTo(0, 0); render(); }
