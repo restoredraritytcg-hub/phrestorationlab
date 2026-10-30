@@ -246,8 +246,13 @@ function toast(m){ const t = $('#toast'); t.textContent = m; t.hidden = false; c
 let PIN = ''; try { PIN = sessionStorage.getItem('intake-pin') || ''; } catch (_) {}
 async function api(body){
   if (!C.endpoint) throw new Error('This page isn’t connected yet — set endpoint in CONFIG.');
-  const res = await fetch(C.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ type: 'intake', pin: PIN }, body)) });
-  const d = await res.json();
+  let d;
+  try {
+    const ctl = window.AbortController ? new AbortController() : null, t = ctl && setTimeout(() => ctl.abort(), 45000);
+    const res = await fetch(C.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ type: 'intake', pin: PIN }, body)), signal: ctl ? ctl.signal : undefined });
+    if (t) clearTimeout(t);
+    d = await res.json();
+  } catch (err) { throw new Error('Couldn’t reach your backend — check your connection and try again.'); }
   if (d && d.badPin) { PIN = ''; try { sessionStorage.removeItem('intake-pin'); } catch (_) {} showPin(d.error); throw new Error(d.error); }
   if (!d || !d.success) throw new Error(String((d && d.error) || 'Something went wrong — try again.').replace(/^Error:\s*/, ''));
   return d;
@@ -255,15 +260,22 @@ async function api(body){
 
 /* ---------- PIN ---------- */
 function showPin(msg){
-  $('#hdr').innerHTML = '';
-  app.innerHTML = `<form class="pin" id="pinf"><h1>${esc(C.business)}</h1><p class="muted">Enter your intake PIN</p>` +
-    `<input type="password" id="pin" inputmode="numeric" autocomplete="current-password" aria-label="PIN" required>` +
-    `<button class="btn" type="submit">Open</button><p class="err" id="pinmsg">${esc(msg || '')}</p></form>`;
+  $('#hdr').innerHTML = ''; const nav = $('#tabs'); if (nav) nav.remove();
+  app.innerHTML = `<form class="pin" id="pinf" autocomplete="on"><h1>${esc(C.business)}</h1><p class="muted">Enter your intake PIN</p>` +
+    `<input type="password" id="pin" name="pin" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="PIN" required>` +
+    `<label class="muted" style="display:flex;gap:8px;align-items:center;justify-content:center;font-size:14px"><input type="checkbox" id="showpin"> Show PIN</label>` +
+    `<button class="btn" type="submit" id="pingo">Open</button><p class="err" id="pinmsg" role="alert">${esc(msg || '')}</p></form>`;
+  $('#showpin').onchange = () => { $('#pin').type = $('#showpin').checked ? 'text' : 'password'; };
   $('#pin').focus();
   $('#pinf').addEventListener('submit', async e => {
-    e.preventDefault(); PIN = $('#pin').value.trim(); $('#pinmsg').textContent = '';
-    try { const d = await api({ action: 'list' }); try { sessionStorage.setItem('intake-pin', PIN); } catch (_) {} LIST = d; route(); }
-    catch (err) { if ($('#pinmsg')) $('#pinmsg').textContent = err.message; }
+    e.preventDefault();
+    const btn = $('#pingo'), out = $('#pinmsg');
+    PIN = $('#pin').value.trim(); out.textContent = '';
+    if (!PIN) { out.textContent = 'Type your PIN.'; return; }
+    btn.disabled = true; btn.textContent = 'Checking…';
+    const slow = setTimeout(() => { if ($('#pinmsg') === out) out.textContent = 'Still checking — the first load can take a few seconds…'; out.className = 'muted'; }, 5000);
+    try { const d = await api({ action: 'list' }); try { sessionStorage.setItem('intake-pin', PIN); } catch (_) {} LIST = d; clearTimeout(slow); route(); }
+    catch (err) { clearTimeout(slow); const m = $('#pinmsg'); if (m) { m.className = 'err'; m.textContent = err.message; } const b = $('#pingo'); if (b) { b.disabled = false; b.textContent = 'Open'; } }
   });
 }
 
