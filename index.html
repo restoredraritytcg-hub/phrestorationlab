@@ -21,7 +21,7 @@
  * ===================================================================== */
 const CONFIG = {
 
-  build: 'labs-v9',   // shown in the footer — bump on every upload
+  build: 'labs-v10',   // shown in the footer — bump on every upload
 
   /* ─── Backend + photo uploads ───────────────────────────────────── */
   backend: {
@@ -3129,6 +3129,15 @@ let resetTerms = () => {};
       });
     }
     if(d.seeded && Array.isArray(d.shows) && C.events) C.events.items = d.shows.filter(x => x && x.name);
+    if(Array.isArray(d.gallery) && d.gallery.length && C.gallery){   // Site Gallery tab: newest photos first, then the built-in ones
+      const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const url = v => /^https:\/\/[^\s"'<>]+$/i.test(String(v || '').trim()) ? String(v).trim() : '';
+      const rows = d.gallery.map((x, i) => Object.assign({ i }, x)).filter(x => url(x.image) || url(x.before) || url(x.after))
+        .sort((a, b) => ((Number(a.order) || 0) - (Number(b.order) || 0)) || (a.i - b.i));
+      const extra = rows.map(x => ({ title: esc(x.title), set: esc(x.subtitle), caption: esc(x.subtitle), tag: esc(x.tag), alt: esc(x.title),
+        image: url(x.image) || url(x.after), before: url(x.before), after: url(x.after) || url(x.image), note: esc(x.note) }));
+      C.gallery.items = extra.concat(C.gallery.items || []);
+    }
     if(Object.prototype.hasOwnProperty.call(st, 'accepting_submissions') && !yes(st.accepting_submissions))
       C.form.paused = String(st.paused_message || 'We’re not taking new submissions right now — check back soon!');
     if(yes(st.announcement_on) && String(st.announcement_text || '').trim())
