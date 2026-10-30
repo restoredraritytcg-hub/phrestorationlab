@@ -1,0 +1,17 @@
+{
+  "name": "PH Restoration Labs Intake",
+  "short_name": "PH Intake",
+  "start_url": "intake.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070707",
+  "theme_color": "#070707",
+  "icons": [
+    {
+      "src": "intake-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

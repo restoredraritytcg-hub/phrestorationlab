@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="intake.webmanifest">
+<link rel="apple-touch-icon" href="intake-icon.png">
+<link rel="icon" type="image/png" href="intake-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PH Intake">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#070707">
 <title>Intake</title>
 <script>
 /* =====================================================================
@@ -243,7 +251,7 @@ const when = iso => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocale
 const thumb = u => /res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(u) ? u.replace('/image/upload/', '/image/upload/f_auto,q_auto,c_fill,w_200,h_266/') : u;
 function toast(m){ const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 3000); }
 
-let PIN = ''; try { PIN = sessionStorage.getItem('intake-pin') || ''; } catch (_) {}
+let PIN = ''; try { PIN = sessionStorage.getItem('intake-pin') || localStorage.getItem('intake-pin-keep') || ''; } catch (_) {}
 async function api(body){
   if (!C.endpoint) throw new Error('This page isn’t connected yet — set endpoint in CONFIG.');
   let d;
@@ -253,7 +261,7 @@ async function api(body){
     if (t) clearTimeout(t);
     d = await res.json();
   } catch (err) { throw new Error('Couldn’t reach your backend — check your connection and try again.'); }
-  if (d && d.badPin) { PIN = ''; try { sessionStorage.removeItem('intake-pin'); } catch (_) {} showPin(d.error); throw new Error(d.error); }
+  if (d && d.badPin) { PIN = ''; try { sessionStorage.removeItem('intake-pin'); localStorage.removeItem('intake-pin-keep'); } catch (_) {} showPin(d.error); throw new Error(d.error); }
   if (!d || !d.success) throw new Error(String((d && d.error) || 'Something went wrong — try again.').replace(/^Error:\s*/, ''));
   return d;
 }
@@ -263,7 +271,8 @@ function showPin(msg){
   $('#hdr').innerHTML = ''; const nav = $('#tabs'); if (nav) nav.remove();
   app.innerHTML = `<form class="pin" id="pinf" autocomplete="on"><h1>${esc(C.business)}</h1><p class="muted">Enter your intake PIN</p>` +
     `<input type="password" id="pin" name="pin" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="PIN" required>` +
-    `<label class="muted" style="display:flex;gap:8px;align-items:center;justify-content:center;font-size:14px"><input type="checkbox" id="showpin"> Show PIN</label>` +
+    `<div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap"><label class="muted" style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="showpin"> Show PIN</label>` +
+    `<label class="muted" style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="keeppin"> Remember me on this phone</label></div>` +
     `<button class="btn" type="submit" id="pingo">Open</button><p class="err" id="pinmsg" role="alert">${esc(msg || '')}</p></form>`;
   $('#showpin').onchange = () => { $('#pin').type = $('#showpin').checked ? 'text' : 'password'; };
   $('#pin').focus();
@@ -274,7 +283,7 @@ function showPin(msg){
     if (!PIN) { out.textContent = 'Type your PIN.'; return; }
     btn.disabled = true; btn.textContent = 'Checking…';
     const slow = setTimeout(() => { if ($('#pinmsg') === out) out.textContent = 'Still checking — the first load can take a few seconds…'; out.className = 'muted'; }, 5000);
-    try { const d = await api({ action: 'list' }); try { sessionStorage.setItem('intake-pin', PIN); } catch (_) {} LIST = d; clearTimeout(slow); route(); }
+    try { const d = await api({ action: 'list' }); try { sessionStorage.setItem('intake-pin', PIN); if ($('#keeppin') && $('#keeppin').checked) localStorage.setItem('intake-pin-keep', PIN); } catch (_) {} LIST = d; clearTimeout(slow); route(); }
     catch (err) { clearTimeout(slow); const m = $('#pinmsg'); if (m) { m.className = 'err'; m.textContent = err.message; } const b = $('#pingo'); if (b) { b.disabled = false; b.textContent = 'Open'; } }
   });
 }
@@ -287,8 +296,7 @@ async function loadList(){
   try { LIST = await api({ action: 'list' }); renderList(); } catch (err) { if (PIN) app.innerHTML = `<p class="err">${esc(err.message)}</p>`; }
 }
 function renderList(){
-  $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`;
-  $('#refresh').onclick = loadList;
+  hdrRefresh(loadList);
   const all = LIST.orders, shown = all.filter(o => (filt === 'all' || isOpen(o)) && (!q || (o.ref + ' ' + o.name).toLowerCase().includes(q)));
   app.innerHTML = `<div class="toolbar"><input type="search" id="q" placeholder="Search name or reference" value="${esc(q)}" aria-label="Search orders">` +
     `<div class="seg" role="group" aria-label="Show"><button data-f="open" aria-pressed="${filt === 'open'}">Open (${all.filter(isOpen).length})</button><button data-f="all" aria-pressed="${filt === 'all'}">All (${all.length})</button></div></div>` +
@@ -342,8 +350,7 @@ function wireStatus(root){
 function renderCard(){
   const it = O.items.find(x => String(x.num) === VIEW.num), i = O.items.indexOf(it);
   const prev = O.items[i - 1], next = O.items[i + 1];
-  $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`;
-  $('#refresh').onclick = () => loadOrder(O.id, VIEW.num);
+  hdrRefresh(() => loadOrder(O.id, VIEW.num));
   app.innerHTML = `<div class="toolbar"><button class="btn ghost small" id="toorder">Back to order</button>` +
     (prev ? `<button class="btn ghost small" data-go="${esc(prev.num)}">Previous ${esc(C.item)}</button>` : '') +
     (next ? `<button class="btn ghost small" data-go="${esc(next.num)}">Next ${esc(C.item)}</button>` : '') + `</div>` +
@@ -353,8 +360,7 @@ function renderCard(){
   wireCard(it); wireStatus(app);
 }
 function renderOrder(){
-  $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`;
-  $('#refresh').onclick = () => loadOrder(O.id);
+  hdrRefresh(() => loadOrder(O.id));
   const qt = O.quote || { lines: [], subtotal: 0, referral: 0, yours: 0, total: 0, notes: [] };
   app.innerHTML =
     `<button class="btn ghost small back" id="back">Back</button>` +
@@ -447,7 +453,8 @@ function setNav(active){
   n.innerHTML = [['orders', '#', 'Orders'], ['customers', '#customers', 'Customers'], ['cards', '#cards', cap(C.items)], ['site', '#site', 'Website']]
     .map(([k, h, l]) => `<a href="${h}"${k === active ? ' aria-current="page"' : ''}>${l}</a>`).join('');
 }
-function hdrRefresh(fn){ $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button>`; $('#refresh').onclick = fn; }
+function hdrRefresh(fn){ $('#hdr').innerHTML = `<button class="btn ghost small" id="refresh">Refresh</button> <button class="btn ghost small" id="signout">Sign out</button>`; $('#refresh').onclick = fn; $('#signout').onclick = signOut; }
+function signOut(){ PIN = ''; try { sessionStorage.removeItem('intake-pin'); localStorage.removeItem('intake-pin-keep'); } catch (_) {} LIST = null; ALL = null; SITE = null; O = null; location.hash = ''; showPin('Signed out.'); }
 const cardRow = (x, order) => `<a class="crd" href="#${encodeURIComponent(x.id)}/${encodeURIComponent(x.num)}">` +
   (x.photo ? `<img src="${esc(thumb(x.photo))}" alt="" loading="lazy">` : '<span class="noimg"></span>') +
   `<span><span class="t">${esc(x.name || 'Unnamed')}</span><span class="s">${esc(x.service || '')}</span>` +
