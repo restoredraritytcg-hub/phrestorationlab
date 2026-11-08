@@ -21,7 +21,7 @@
  * ===================================================================== */
 const CONFIG = {
   business: 'PH Restoration Labs',
-  build: 'labs-intake-v1',
+  build: 'labs-intake-v4',
   endpoint: 'https://script.google.com/macros/s/AKfycbzuZEQkwp7jn6xx0FpMSk7TayiKOytf3FZEFQLrIaMzzPH2x59n_JBtDyZg-36fEB-K/exec',
   cloudinaryCloud: 'zwhk0ifp',
   cloudinaryPreset: 'hegphlku',
@@ -55,7 +55,8 @@ button, input, textarea, select{font:inherit; color:inherit}
 .btn.ghost{background:transparent; color:var(--text); border-color:var(--line)}
 .btn.small{min-height:34px; padding:6px 12px; font-size:14px}
 .btn[disabled]{opacity:.55; cursor:not-allowed}
-input[type=text], input[type=password], input[type=search], textarea{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; width:100%; min-height:44px}
+[hidden]{display:none !important}
+input[type=text], input[type=password], input[type=search], input[type=email], input[type=tel], input[type=date], input[type=number], select, textarea{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; width:100%; min-height:44px}
 textarea{min-height:84px; resize:vertical}
 input:focus, textarea:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .muted{color:var(--muted)}
@@ -298,7 +299,7 @@ async function loadList(){
 function renderList(){
   hdrRefresh(loadList);
   const all = LIST.orders, shown = all.filter(o => (filt === 'all' || isOpen(o)) && (!q || (o.ref + ' ' + o.name).toLowerCase().includes(q)));
-  app.innerHTML = `<div class="toolbar"><input type="search" id="q" placeholder="Search name or reference" value="${esc(q)}" aria-label="Search orders">` +
+  app.innerHTML = `<div class="toolbar"><input type="search" id="q" placeholder="Search name or reference" value="${esc(q)}" aria-label="Search orders"><a class="btn small" href="#new" style="text-decoration:none">New submission</a>` +
     `<div class="seg" role="group" aria-label="Show"><button data-f="open" aria-pressed="${filt === 'open'}">Open (${all.filter(isOpen).length})</button><button data-f="all" aria-pressed="${filt === 'all'}">All (${all.length})</button></div></div>` +
     `<div class="orders">${shown.length ? shown.map(o => {
       const n = o.count || 0;
@@ -400,6 +401,7 @@ function cardHtml(it, single){
     (cust.length ? `<div class="ph"><b>Customer photos</b><div class="strip">${cust.map(([l, u]) => `<span class="thumb"><a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(thumb(u))}" alt="${esc(l)}" loading="lazy"></a><span>${esc(l)}</span></span>`).join('')}</div></div>` : '') +
     `<div class="ph"><b>Before photos</b>${strip('before', it.before)}</div>` +
     `<div class="ph"><b>After photos</b>${strip('after', it.after)}</div>` +
+    (window.CardValueLinks && it.name ? `<div class="cl-value" style="margin-top:12px">${window.CardValueLinks(it.name)}</div>` : '') +
     `<div class="row2"><label><b style="font-size:14px">Intake notes</b> <span class="saved" data-saved hidden>Saved</span><textarea data-notes placeholder="Condition on arrival, what you found, what you did">${esc(it.intakeNotes)}</textarea></label>` +
     `<label><b style="font-size:14px">Price override</b><input type="text" data-ov inputmode="decimal" placeholder="Use quote" value="${esc(it.override)}"><span class="muted" style="font-size:13px">Your price for this ${esc(C.item)}. Blank uses the quote.</span></label></div></section>`;
 }
@@ -465,7 +467,7 @@ async function showCustomers(){
   setNav('customers'); hdrRefresh(async () => { ALL = null; showCustomers(); });
   if (!ALL) { app.innerHTML = '<p class="muted">Loading customers…</p>'; if (!(await loadAll())) return; }
   const list = customers(), shown = list.filter(c => !cq || (c.name + ' ' + c.email + ' ' + c.phone).toLowerCase().includes(cq));
-  app.innerHTML = `<div class="toolbar"><input type="search" id="cq" placeholder="Search name, email or phone" value="${esc(cq)}" aria-label="Search customers"></div>` +
+  app.innerHTML = `<div class="toolbar"><input type="search" id="cq" placeholder="Search name, email or phone" value="${esc(cq)}" aria-label="Search customers"><a class="btn small" href="#new" style="text-decoration:none">New customer</a></div>` +
     `<div class="stats"><div class="stat"><b>${list.length}</b><span>${list.length === 1 ? 'customer' : 'customers'}</span></div><div class="stat"><b>${list.filter(c => c.orders.length > 1).length}</b><span>repeat</span></div>` +
     `<div class="stat"><b>${list.filter(c => c.open).length}</b><span>with open orders</span></div><div class="stat"><b>${money(list.reduce((a, c) => a + c.total, 0))}</b><span>quoted, all time</span></div></div>` +
     `<div class="orders">${shown.length ? shown.map(c => `<a class="cust" href="#customer=${encodeURIComponent(c.key)}"><span class="who">${esc(c.name || 'No name')}</span>` +
@@ -481,7 +483,7 @@ async function showCustomer(key){
   const c = customers().find(x => x.key === key);
   if (!c) { app.innerHTML = `<a class="btn ghost small back" href="#customers">All customers</a><p class="err">Customer not found.</p>`; return; }
   const byId = Object.fromEntries(c.orders.map(o => [o.id, o])), done = ALL.doneStages || [];
-  app.innerHTML = `<a class="btn ghost small back" href="#customers" style="display:inline-block;text-decoration:none">All customers</a>` +
+  app.innerHTML = `<div class="toolbar"><a class="btn ghost small" href="#customers" style="text-decoration:none">All customers</a><a class="btn small" href="#new=${encodeURIComponent(c.key)}" style="text-decoration:none;margin-left:auto">New submission</a></div>` +
     `<div class="ohead"><div><h1>${esc(c.name || 'No name')}</h1><div class="contact">` +
     (c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '') + (c.phone ? `<a href="tel:${esc(c.phone.replace(/[^+\d]/g, ''))}">${esc(c.phone)}</a>` : '') +
     (c.address ? `<span class="muted">${esc(c.address)}</span>` : '') + `</div></div></div>` +
@@ -651,10 +653,10 @@ function subShows(box){
       (x.location ? `<span class="muted">${esc(x.location)}</span>` : '') + (x.time ? `<span class="muted">${esc(x.time)}</span>` : ''),
     was: x => x.name,
     form: x => `<label class="f">Event name<input type="text" name="name" maxlength="100" value="${esc(x.name || '')}" required></label>` +
-      `<div class="g2"><label class="f">Start date<input type="date" name="date" value="${esc(x.date || '')}" required></label><label class="f">End date <span class="muted">(optional)</span><input type="date" name="endDate" value="${esc(x.endDate || '')}"></label></div>` +
+      `<div class="g2"><label class="f">Start date<input type="date" name="date" value="${esc(x.date || '')}" required></label><label class="f"><span>End date <span class="muted">(optional)</span></span><input type="date" name="endDate" value="${esc(x.endDate || '')}"></label></div>` +
       `<label class="f">Location<input type="text" name="location" maxlength="200" value="${esc(x.location || '')}" placeholder="Venue, city"></label>` +
-      `<label class="f">Time or table number <span class="muted">(optional)</span><input type="text" name="time" maxlength="120" value="${esc(x.time || '')}" placeholder="e.g. 10am–6pm, Table 214"></label>` +
-      `<label class="f">Event link <span class="muted">(optional)</span><input type="text" name="link" value="${esc(x.link || '')}" placeholder="https://…"></label>`,
+      `<label class="f"><span>Time or table number <span class="muted">(optional)</span></span><input type="text" name="time" maxlength="120" value="${esc(x.time || '')}" placeholder="e.g. 10am–6pm, Table 214"></label>` +
+      `<label class="f"><span>Event link <span class="muted">(optional)</span></span><input type="text" name="link" value="${esc(x.link || '')}" placeholder="https://…"></label>`,
     collect: f => ({ name: f.elements.name.value, date: f.elements.date.value, endDate: f.elements.endDate.value, location: f.elements.location.value, time: f.elements.time.value, link: f.elements.link.value.trim() })
   });
 }
@@ -668,8 +670,8 @@ function subNews(box){
     was: x => x.title,
     form: x => `<label class="f">Title<input type="text" name="title" maxlength="120" value="${esc(x.title || '')}" placeholder="e.g. Holiday turnaround"></label>` +
       `<label class="f">Message<textarea name="message" maxlength="1000" rows="4">${esc(x.message || '')}</textarea></label>` +
-      `<div class="g2"><label class="f">Date shown <span class="muted">(optional)</span><input type="date" name="date" value="${esc(x.date || '')}"></label>` +
-      `<label class="f">Button text <span class="muted">(optional)</span><input type="text" name="buttonText" maxlength="40" value="${esc(x.buttonText || '')}" placeholder="e.g. See pricing"></label></div>` +
+      `<div class="g2"><label class="f"><span>Date shown <span class="muted">(optional)</span></span><input type="date" name="date" value="${esc(x.date || '')}"></label>` +
+      `<label class="f"><span>Button text <span class="muted">(optional)</span></span><input type="text" name="buttonText" maxlength="40" value="${esc(x.buttonText || '')}" placeholder="e.g. See pricing"></label></div>` +
       `<div class="f"><b>Button goes to</b>${linkPick('nl', x.buttonLink || '')}</div>` + sw('npub', x.show !== false, 'Published on the site'),
     wire: f => wireLink('nl'),
     collect: (f, getLink) => ({ title: f.elements.title.value, message: f.elements.message.value, date: f.elements.date.value, buttonText: f.elements.buttonText.value, buttonLink: getLink(), show: $('#npub', f).checked }),
@@ -740,6 +742,98 @@ async function uploadTo(file, folder){
   const d = await res.json(); if (!d.secure_url) throw new Error((d.error && d.error.message) || 'Upload failed'); return d.secure_url;
 }
 
+
+/* ---------- New submission (owner) ---------- */
+function priceMenu(){
+  const P = (SITE && SITE.prices) || [], norm = v => String(v || '').toLowerCase().trim();
+  const svc = [], adds = [];
+  P.forEach(p => {
+    const o = norm(p.option);
+    if (p.price == null) return;
+    if (o === 'with another service') { adds.push({ label: p.service, price: p.price }); return; }
+    if (/^each additional card/.test(o)) return;
+    const next = o === 'on its own' ? P.find(x => x.service === p.service && /^each additional card/.test(norm(x.option))) : null;
+    const value = o === 'on its own' ? `${p.service} only ($${p.price})` : p.option ? `${p.service} — ${p.option} ($${p.price})` : `${p.service} ($${p.price})`;
+    const label = o === 'on its own' ? `${p.service} only — $${p.price}${next ? ` first, $${next.price} each after` : ''}` : p.option ? `${p.service} — ${p.option} — $${p.price}` : `${p.service} — $${p.price}`;
+    svc.push({ group: p.group, value, label, price: p.price, solo: o === 'on its own', key: p.service, next: next ? next.price : null });
+  });
+  return { svc, adds };
+}
+async function showNew(key){
+  setNav(key ? 'customers' : 'orders'); hdrRefresh(() => showNew(key));
+  app.innerHTML = '<p class="muted">Loading your services…</p>';
+  try { if (!SITE) SITE = await api({ action: 'site' }); if (!ALL) ALL = await api({ action: 'all' }); }
+  catch (err) { app.innerHTML = `<p class="err">${esc(err.message)}</p>`; return; }
+  const c = key ? customers().find(x => x.key === key) : null, menu = priceMenu();
+  const deliveries = [...new Set(['Hand-off: in person', 'Ship (mail)'].concat(ALL.orders.map(o => o.delivery).filter(Boolean)))];
+  app.innerHTML = `<a class="btn ghost small back" href="${c ? '#customer=' + encodeURIComponent(c.key) : '#'}" style="display:inline-block;text-decoration:none">Back</a>` +
+    `<h1 style="font-size:30px;margin-bottom:14px">New submission</h1><form id="nsf">` +
+    `<section class="panel ed"><h2>Customer</h2><div class="g2"><label class="f">Name<input type="text" name="cname" maxlength="80" value="${esc(c ? c.name : '')}" required></label>` +
+    `<label class="f"><span>Email <span class="muted">(for updates)</span></span><input type="email" name="cemail" maxlength="120" value="${esc(c ? c.email : '')}"></label></div>` +
+    `<div class="g2"><label class="f">Phone<input type="tel" name="cphone" maxlength="40" value="${esc(c ? c.phone : '')}"></label>` +
+    `<label class="f">How the ${esc(C.items)} get to you<select name="cdel">${deliveries.map(d => `<option${c && c.last && c.last.delivery === d ? ' selected' : ''}>${esc(d)}</option>`).join('')}</select></label></div>` +
+    `<label class="f"><span>Return address <span class="muted">(if shipping)</span></span><input type="text" name="caddr" maxlength="300" value="${esc(c ? c.address : '')}"></label></section>` +
+    `<div id="ncards"></div><button type="button" class="btn ghost" id="addcard">Add another ${esc(C.item)}</button>` +
+    `<section class="panel ed" style="margin-top:14px"><div class="qtotal"><span class="muted">Estimated total</span><span class="big" id="nstotal">$0.00</span></div>` +
+    `<p class="muted" id="nsnote" style="font-size:14px">The quote is worked out from your price list once it’s saved. You can add a discount or override prices on the order.</p>` +
+    `<label class="sw"><input type="checkbox" id="nsemail"${c && c.email ? ' checked' : ''}><span>Email the customer a confirmation with their reference number</span></label>` +
+    `<label class="sw"><input type="checkbox" id="nsterms"><span>The customer agreed to the Terms &amp; Conditions</span></label>` +
+    `<div class="savebar"><button class="btn" type="submit" id="nsgo">Create submission</button><span class="err" id="nserr"></span></div></section></form>`;
+  const box = $('#ncards'); let n = 0;
+  const addCard = () => {
+    n++; const el = document.createElement('section'); el.className = 'panel ed ncard';
+    el.innerHTML = `<div class="edhead"><h2>${esc(cap(C.item))} <span data-num></span></h2><button type="button" class="btn ghost small del" data-rm>Remove</button></div>` +
+      `<div class="g2"><label class="f"><span>${esc(cap(C.item))} name</span><input type="text" data-k="name" maxlength="120" placeholder="e.g. Charizard — Base Set 1999"></label>` +
+      `<label class="f"><span>Value <span class="muted">(optional)</span></span><input type="text" data-k="value" inputmode="decimal" placeholder="e.g. 300"></label></div>` +
+      (menu.svc.length
+        ? `<label class="f">Service<select data-k="svc"><option value="">Choose a service</option>${(() => { let g = null, h = ''; menu.svc.forEach((s, i) => { if (s.group !== g) { if (g !== null) h += '</optgroup>'; g = s.group; h += `<optgroup label="${esc(g || 'Services')}">`; } h += `<option value="${i}">${esc(s.label)}</option>`; }); return h + (g !== null ? '</optgroup>' : ''); })()}</select></label>` +
+          (menu.adds.length ? `<div class="f" data-addw><b>Additional services</b>${menu.adds.map((a, i) => `<label class="sw compact"><input type="checkbox" data-add="${i}"><span>${esc(a.label)} (+$${a.price})</span></label>`).join('')}</div>` : '')
+        : `<div class="g2"><label class="f">Service<input type="text" data-k="svctext" maxlength="200" placeholder="What needs to be done"></label><label class="f">Price<input type="text" data-k="svcprice" inputmode="decimal" placeholder="e.g. 20"></label></div>`) +
+      `<label class="f"><span>Notes <span class="muted">(optional)</span></span><textarea data-k="notes" rows="2" style="min-height:64px" placeholder="Condition, what the customer asked for"></textarea></label>` +
+      `<p class="muted" data-price style="margin:0"></p>`;
+    box.appendChild(el);
+    $('[data-rm]', el).onclick = () => { if ($$('.ncard', box).length > 1) { el.remove(); recalc(); } };
+    $$('select, input', el).forEach(i => i.addEventListener('input', recalc));
+    $$('select, input', el).forEach(i => i.addEventListener('change', recalc));
+    recalc(); $('[data-k="name"]', el).focus();
+  };
+  const recalc = () => {
+    let total = 0; const seen = {};
+    $$('.ncard', box).forEach((el, i) => {
+      $('[data-num]', el).textContent = i + 1;
+      const sel = $('[data-k="svc"]', el), out = $('[data-price]', el);
+      if (!sel) { const pr = Number(($('[data-k="svcprice"]', el).value || '').replace(/[$,]/g, '')) || 0; total += pr; out.textContent = pr ? 'Price: $' + pr.toFixed(2) : ''; return; }
+      const s = menu.svc[sel.value]; const aw = $('[data-addw]', el);
+      if (aw) { aw.hidden = !s || s.solo; if (!s || s.solo) $$('[data-add]', el).forEach(x => { x.checked = false; }); }
+      if (!s) { out.textContent = ''; return; }
+      let p = s.price; if (s.solo && s.next != null && seen[s.key]) p = s.next; if (s.solo) seen[s.key] = 1;
+      const extra = $$('[data-add]:checked', el).reduce((a, x) => a + menu.adds[x.dataset.add].price, 0);
+      total += p + extra; out.textContent = `Price: $${(p + extra).toFixed(2)}${s.solo && s.next != null && p === s.next ? ' (additional card)' : ''}`;
+    });
+    $('#nstotal').textContent = '$' + total.toFixed(2);
+  };
+  $('#addcard').onclick = addCard; addCard();
+  $('#nsf').onsubmit = e => {
+    e.preventDefault(); const f = e.target, err = $('#nserr'); err.textContent = '';
+    const cards = [];
+    for (const [i, el] of $$('.ncard', box).entries()) {
+      const name = $('[data-k="name"]', el).value.trim(), sel = $('[data-k="svc"]', el);
+      let service = '';
+      if (sel) { const s = menu.svc[sel.value]; if (s) service = s.value + (s.solo ? '' : $$('[data-add]:checked', el).map(x => ` + ${menu.adds[x.dataset.add].label} ($${menu.adds[x.dataset.add].price})`).join('')); }
+      else { const t = $('[data-k="svctext"]', el).value.trim(), pr = $('[data-k="svcprice"]', el).value.trim().replace(/[$,]/g, ''); if (t) service = pr ? `${t} ($${pr})` : t; }
+      if (!name) { err.textContent = `${cap(C.item)} ${i + 1} needs a name.`; return; }
+      if (!service) { err.textContent = `Choose a service for ${C.item} ${i + 1}.`; return; }
+      cards.push({ name, value: $('[data-k="value"]', el).value.trim(), service, notes: $('[data-k="notes"]', el).value.trim() });
+    }
+    const btn = $('#nsgo');
+    guarded(btn, async () => {
+      const d = await api({ action: 'newSubmission', customer: { name: f.elements.cname.value, email: f.elements.cemail.value, phone: f.elements.cphone.value, delivery: f.elements.cdel.value, address: f.elements.caddr.value },
+        cards, emailCustomer: $('#nsemail').checked, agreed: $('#nsterms').checked });
+      ALL = null; LIST = null; take(d); toast(`Submission ${d.created} created`); location.hash = '#' + encodeURIComponent(d.order.id);
+    });
+  };
+}
+
 /* ---------- uploads ---------- */
 function shrink(file){
   return new Promise(resolve => {
@@ -769,6 +863,7 @@ function route(){
   if (h === 'customers') { window.scrollTo(0, 0); return showCustomers(); }
   if (h.indexOf('customer=') === 0) { window.scrollTo(0, 0); return showCustomer(decodeURIComponent(h.slice(9))); }
   if (h === 'cards') { window.scrollTo(0, 0); return showCards(); }
+  if (h === 'new' || h.indexOf('new=') === 0) { window.scrollTo(0, 0); return showNew(h.length > 4 ? decodeURIComponent(h.slice(4)) : ''); }
   if (h === 'site' || h.indexOf('site=') === 0) { const sub = h.slice(5); if (sub && SUB !== sub) window.scrollTo(0, 0); return showSite(SUBS.some(x => x[0] === sub) ? sub : (sub ? 'status' : SUB)); }
   setNav('orders');
   const [id, num] = h.split('/').map(decodeURIComponent);
@@ -779,6 +874,234 @@ function route(){
 window.addEventListener('hashchange', () => { if (!location.hash) LIST = null; route(); });
 window.addEventListener('hashchange', e => { const old = (e.oldURL.split('#')[1] || ''); if (!old || old === 'customers' || old === 'cards' || old.indexOf('customer=') === 0) BACKTO = old; });
 route();
+})();
+</script>
+<!-- ===== Card lookup: suggests Pokémon cards as you type a card name =====
+     Searches Restored Rarity's self-updating card list (instant), falling back to pokemontcg.io / TCGdex online.
+     Also shows "Look up value" links (PriceCharting, eBay sold) under the card name.
+     Customers can still type any card that isn't listed (sports cards, customs, etc.).
+     To turn it off, set on: false. To use another catalog later, change api + toCard below. -->
+<style>
+  .cl-box{position:fixed;z-index:2147483000;background:var(--panel,#fff);color:var(--text,#111);border:1px solid var(--line,#ccc);
+    border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.35);overflow:hidden;font:inherit;font-size:14px;text-align:left}
+  .cl-list{max-height:320px;overflow-y:auto;margin:0;padding:4px;list-style:none}
+  .cl-opt{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer;line-height:1.25}
+  .cl-opt[aria-selected="true"]{background:color-mix(in srgb,var(--accent,#2dd4bf) 22%,transparent)}
+  .cl-opt img{width:34px;height:47px;object-fit:cover;border-radius:3px;flex:none;background:var(--line,#ddd)}
+  .cl-opt b{display:block;font-weight:600}
+  .cl-opt small{display:block;color:var(--muted,#666);font-size:12.5px}
+  .cl-foot{padding:6px 12px 8px;color:var(--muted,#666);font-size:12px;border-top:1px solid var(--line,#ddd)}
+  .cl-msg{padding:10px 12px;color:var(--muted,#666)}
+  .cl-value{margin:6px 0 16px;font-size:13px;color:var(--muted,#666);line-height:1.5}
+  .cl-value a{color:var(--blue,var(--accent,#2563eb));font-weight:700;text-decoration:none;white-space:nowrap}
+  .cl-value a:hover{text-decoration:underline}
+  .cl-value small{display:block;font-size:12px;opacity:.9}
+</style>
+<script>
+(function(){
+  const CL = {
+    on: true,
+    selector: '.ncard input[data-k="name"]',
+    // 1st choice: Restored Rarity's card list (21k+ cards, updates itself on the 1st and 15th). Searched in
+    // the browser, so suggestions are instant. Tried in order; the second is GitHub's copy of the same file.
+    catalogs: ['https://restoredraritytcg.com/portal/cards.json',
+               'https://raw.githubusercontent.com/restoredraritytcg-hub/restoredraritytcg/main/portal/cards.json'],
+    api: 'https://api.pokemontcg.io/v2/cards',     // online fallback (same catalog as CardVestIQ): brand-new cards,
+    backup: 'https://api.tcgdex.net/v2/en',         // or if the list can't load. Then TCGdex.
+    valueLinks: true,                               // "Look up value" links under the card name
+    minChars: 3,
+    max: 12,
+    timeoutMs: 4000
+  };
+  if (!CL.on) return;
+  const cache = {}, $box = document.createElement('div');
+  $box.className = 'cl-box'; $box.hidden = true;
+  $box.innerHTML = '<ul class="cl-list" role="listbox" id="cl-list"></ul><div class="cl-foot">Pokémon cards · not listed? Just keep typing</div>';
+  const $list = $box.firstChild;
+  let input = null, items = [], active = -1, timer = 0, slowTimer = 0, seq = 0, sets = null, DB = null, dbLoading = null;
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const words = text => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(Boolean).slice(0, 5);
+  const keyOf = text => words(text).join(' ');
+  // "charizard base 4" -> (name:charizard* OR set.name:charizard*) (name:base* OR set.name:base*) (number:4 OR set.printedTotal:4)
+  const query = ws => ws.map(w => /^\d+$/.test(w) ? `(number:${w} OR set.printedTotal:${w})` : `(name:${w}* OR set.name:${w}*)`).join(' ');
+  // does a card match every typed word? (used to filter results we already have while the next search runs)
+  const fits = (c, ws) => ws.every(w => /^\d+$/.test(w) ? (c.num === w || c.total === w) : c.hay.some(h => h.startsWith(w)));
+  function card(name, setName, num, total, year, rarity, img){
+    const n = num ? (total && /^\d+$/.test(num) ? `${num}/${total}` : /^\d+$/.test(num) ? `#${num}` : num) : '';
+    return { label: `${name} — ${setName || ''}${n ? ' ' + n : ''}${year ? ` (${year})` : ''}`.trim(), name, sub: [setName, n, year, rarity].filter(Boolean).join(' · '), img,
+      num: String(num || '').replace(/^0+/, ''), total: String(total || ''), hay: words(`${name} ${setName || ''}`) };
+  }
+  async function getJSON(url, ms){
+    const ctl = window.AbortController ? new AbortController() : null, t = setTimeout(() => ctl && ctl.abort(), ms || CL.timeoutMs);
+    try { const r = await fetch(url, ctl ? { signal: ctl.signal } : {}); if (!r.ok) throw new Error('lookup ' + r.status); return await r.json(); }
+    finally { clearTimeout(t); }
+  }
+  async function fromMain(ws){
+    const d = await getJSON(`${CL.api}?q=${encodeURIComponent(query(ws))}&pageSize=${CL.max}&orderBy=-set.releaseDate&select=id,name,number,rarity,set,images`);
+    return (d.data || []).map(c => { const st = c.set || {}; return card(c.name, st.name, c.number, st.printedTotal, (st.releaseDate || '').slice(0, 4), c.rarity, c.images && c.images.small); });
+  }
+  async function fromBackup(ws){
+    if (!sets) { try { sets = JSON.parse(localStorage.getItem('cl-sets') || 'null'); } catch (_) {} }
+    if (!sets || !sets.t || Date.now() - sets.t > 7 * 864e5) {
+      const list = await getJSON(`${CL.backup}/sets`);
+      sets = { t: Date.now(), m: {} }; list.forEach(x => { sets.m[x.id] = [x.name, x.cardCount && x.cardCount.official]; });
+      try { localStorage.setItem('cl-sets', JSON.stringify(sets)); } catch (_) {}
+    }
+    const nameWord = ws.find(w => !/^\d+$/.test(w)); if (!nameWord) return [];
+    const d = await getJSON(`${CL.backup}/cards?name=${encodeURIComponent(nameWord)}&pagination:itemsPerPage=120`);
+    return (Array.isArray(d) ? d : []).slice().reverse().map(c => {
+      const sid = String(c.id).slice(0, Math.max(0, String(c.id).length - String(c.localId).length - 1)), st = sets.m[sid] || [];
+      return card(c.name, st[0], c.localId, st[1], '', '', c.image ? c.image + '/low.webp' : '');
+    }).filter(c => fits(c, ws)).slice(0, CL.max);
+  }
+  // ---- local card list (Restored Rarity's cards.json) ----
+  function loadDB(){
+    if (DB) return Promise.resolve(DB);
+    if (!dbLoading) dbLoading = (async () => {
+      for (const u of CL.catalogs || []) {
+        try {
+          const d = await getJSON(u, 15000);
+          if (!d || !Array.isArray(d.cards) || d.cards.length < 1000) continue;
+          DB = d.cards.map(([name, si, num, pic]) => {
+            const st = d.sets[si] || [], c = card(name, st[1], num, st[3], st[2], '', pic === 1 ? `${d.img}${st[4]}/${num}/low.webp` : pic ? `${pic}/low.webp` : '');
+            c.order = si; c.nn = words(name).join(' '); c.flat = c.hay.join(' ') + ' ' + c.num + ' ' + (st[2] || ''); return c;
+          });
+          return DB;
+        } catch (_) {}
+      }
+      throw new Error('card list unavailable');
+    })().catch(e => { dbLoading = null; DB = false; throw e; });
+    return dbLoading;
+  }
+  function localSearch(text){
+    const ws = words(text.replace(/#/g, ' ')), q = ws.join(' '); if (!ws.length) return [];
+    const out = [];
+    for (const c of DB) {
+      if (!ws.every(w => /^\d+$/.test(w) ? (c.num === w.replace(/^0+/, '') || c.total === w || c.flat.includes(w)) : c.flat.includes(w))) continue;
+      let sc = 0;
+      if (c.nn === q) sc += 100; else if (c.nn.startsWith(q)) sc += 60; else if (c.nn.startsWith(ws[0])) sc += 40;
+      else if (c.nn.split(' ').some(t => t.startsWith(ws[0]))) sc += 20;
+      if (ws.some(w => /^\d+$/.test(w) && w.replace(/^0+/, '') === c.num)) sc += 50;
+      out.push([sc, c]);
+    }
+    out.sort((a, b) => b[0] - a[0] || a[1].name.length - b[1].name.length || b[1].order - a[1].order);
+    return out.slice(0, CL.max).map(x => x[1]);
+  }
+  async function search(text){
+    const ws = words(text), k = ws.join(' '); if (!ws.length) return [];
+    if (cache[k]) return cache[k];
+    if (DB === null) { try { await loadDB(); } catch (_) {} }
+    if (DB) {
+      const r = localSearch(text);
+      if (r.length || ws.join('').length < 4) return (cache[k] = r);   // not in the list: maybe brand new, ask online
+    }
+    let res;
+    try { res = await fromMain(ws); }
+    catch (e) {
+      // main catalog too slow: go straight to the backup. Busy (429) or erroring: retry once, then the backup.
+      if (e.name === 'AbortError') res = await fromBackup(ws);
+      else { try { await new Promise(r => setTimeout(r, 800)); res = await fromMain(ws); } catch (e2) { res = await fromBackup(ws); } }
+    }
+    return (cache[k] = res);
+  }
+  // results we already have for an earlier, shorter search that still match
+  function quick(text){
+    const ws = words(text); let best = null;
+    Object.keys(cache).forEach(k => { if (ws.join(' ').startsWith(k) && (!best || k.length > best.length)) best = k; });
+    if (!best) return null;
+    const r = cache[best].filter(c => fits(c, ws));
+    return { list: r, complete: cache[best].length < CL.max };
+  }
+  function place(){
+    if (!input || $box.hidden) return;
+    const r = input.getBoundingClientRect(), vh = (window.visualViewport && visualViewport.height) || innerHeight;
+    if (r.bottom < 0 || r.top > vh) { $box.style.visibility = 'hidden'; return; }
+    $box.style.visibility = '';
+    const w = Math.min(Math.max(r.width, 300), innerWidth - 16);
+    $box.style.width = w + 'px';
+    $box.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+    const below = vh - r.bottom - 12, above = r.top - 12, up = below < 200 && above > below;
+    $list.style.maxHeight = Math.max(140, Math.min(320, (up ? above : below) - 40)) + 'px';
+    $box.style.top = up ? Math.max(8, r.top - 4 - $box.offsetHeight) + 'px' : (r.bottom + 4) + 'px';
+  }
+  function close(){ $box.hidden = true; active = -1; clearTimeout(slowTimer); if (input) { input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); } }
+  function show(html){ $list.innerHTML = html; if (!$box.isConnected) document.body.appendChild($box); $box.hidden = false; input.setAttribute('aria-expanded', 'true'); place(); }
+  const msg = t => show(`<li class="cl-msg" role="status">${t}</li>`);
+  function render(){
+    if (!items.length) { close(); return; }   // nothing matched (e.g. a sports card): stay out of the way
+    show(items.map((c, i) => `<li class="cl-opt" role="option" id="cl-opt-${i}" data-i="${i}" aria-selected="${i === active}">` +
+      (c.img ? `<img src="${esc(c.img)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<img alt="">') + `<span><b>${esc(c.name)}</b><small>${esc(c.sub)}</small></span></li>`).join(''));
+  }
+  function setActive(i){
+    active = (i + items.length) % items.length;
+    [...$list.children].forEach((li, j) => li.setAttribute('aria-selected', String(j === active)));
+    const li = $list.children[active]; if (li) { li.scrollIntoView({ block: 'nearest' }); input.setAttribute('aria-activedescendant', li.id); }
+  }
+  function pick(i){
+    const c = items[i]; if (!c || !input) return;
+    input.value = c.label.slice(0, Number(input.maxLength) > 0 ? input.maxLength : 200);
+    input.dataset.clPicked = input.value; close(); clearTimeout(timer); seq++;
+    input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  // ---- "Look up value" links (PriceCharting + eBay sold), filled from whatever is in the card name field ----
+  const valueQuery = t => String(t || '').replace(/\s+—\s+/g, ' ').replace(/\((\d{4})\)/, '$1').replace(/(\d+)\/\d+/, '$1').replace(/\s+/g, ' ').trim();
+  function valueLinksHtml(text){
+    const q = encodeURIComponent(valueQuery(text));
+    return `Look up value: <a href="https://www.pricecharting.com/search-products?q=${q}&type=prices" target="_blank" rel="noopener">PriceCharting ↗</a>` +
+      ` · <a href="https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1" target="_blank" rel="noopener">eBay sold ↗</a>` +
+      `<small>Ungraded prices ≈ the card as it is now. For the value after restoration, use the price for the condition we expect once it’s fixed.</small>`;
+  }
+  function updateValueLinks(el){
+    if (!CL.valueLinks) return;
+    let box = el._clValue;
+    if (!box) {
+      box = el._clValue = document.createElement('div'); box.className = 'cl-value'; box.hidden = true;
+      const host = el.closest('.field, label.f, .f') || el; host.insertAdjacentElement('afterend', box);
+    }
+    const t = el.value.trim(); box.hidden = t.length < 3; if (!box.hidden) box.innerHTML = valueLinksHtml(t);
+  }
+  window.CardValueLinks = valueLinksHtml;   // the owner portal reuses this on each card
+  function attach(el){
+    if (el.dataset.cl) return; el.dataset.cl = '1';
+    el.setAttribute('autocomplete', 'off'); el.setAttribute('role', 'combobox'); el.setAttribute('aria-autocomplete', 'list');
+    el.setAttribute('aria-controls', 'cl-list'); el.setAttribute('aria-expanded', 'false');
+  }
+  function lookup(el, delay){
+    attach(el); input = el; clearTimeout(timer); clearTimeout(slowTimer);
+    const text = el.value.trim();
+    if (el.dataset.clPicked === el.value || words(text).join('').length < CL.minChars) { close(); return; }
+    const my = ++seq, k = keyOf(text);
+    if (cache[k]) { items = cache[k]; active = -1; render(); return; }
+    if (DB) {   // list is loaded: search right away
+      const r = localSearch(text);
+      if (r.length || words(text).join('').length < 4) { items = cache[k] = r; active = -1; render(); return; }
+    }
+    const q = quick(text);
+    if (q && q.list.length) { items = q.list; active = -1; render(); if (q.complete) return; }   // instant results while the search runs
+    timer = setTimeout(async () => {
+      if (my !== seq) return;
+      if (!q || !q.list.length) { msg('Searching Pokémon cards…'); slowTimer = setTimeout(() => { if (my === seq && !items.length) msg('Still searching… you can keep typing'); }, 3500); }
+      if (!q || !q.list.length) items = [];
+      try { const res = await search(text); if (my !== seq || input !== el) return; clearTimeout(slowTimer); items = res; active = -1; render(); }
+      catch (err) { if (my === seq) { clearTimeout(slowTimer); items = []; msg('Card lookup isn’t responding right now — just type the card in.'); setTimeout(() => { if (my === seq) close(); }, 3000); } }
+    }, delay);
+  }
+  document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches(CL.selector)) { attach(e.target); loadDB().catch(() => {}); if (e.target.value.trim()) lookup(e.target, 0); } });
+  document.addEventListener('input', e => { const el = e.target; if (el.matches && el.matches(CL.selector)) { updateValueLinks(el); lookup(el, 350); } });
+  document.addEventListener('keydown', e => {
+    if (e.target !== input || $box.hidden || !items.length) { if (e.key === 'Escape') close(); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+    else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(active); }
+    else if (e.key === 'Escape' || e.key === 'Tab') close();
+  });
+  $list.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the field
+  $list.addEventListener('click', e => { const li = e.target.closest('.cl-opt'); if (li) pick(+li.dataset.i); });
+  document.addEventListener('focusout', e => { if (e.target === input) setTimeout(() => { if (document.activeElement !== input) close(); }, 150); });
+  document.addEventListener('mousedown', e => { if (!$box.hidden && e.target !== input && !$box.contains(e.target)) close(); });
+  addEventListener('resize', place); addEventListener('scroll', place, true);
+  if (window.visualViewport) visualViewport.addEventListener('resize', place);
 })();
 </script>
 </body>
