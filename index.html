@@ -1908,7 +1908,7 @@ function T(s){
     .replace(/\{fallback\}/g, (C.contact && C.contact.fallback) || 'contact us');
 }
 function esc(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
-function attr(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '"').replace(/</g, '&lt;'); }
+function attr(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 function plain(html){ const d = document.createElement('textarea'); d.innerHTML = String(html == null ? '' : html); return d.value.replace(/<[^>]+>/g, ''); }
 const money = n => C.pricing.currency + Number(n).toLocaleString('en-US');
 const ENDPOINT = (C.backend.endpoint || '').trim();
@@ -3171,7 +3171,7 @@ let resetTerms = () => {};
     }
     if(d.seeded && Array.isArray(d.shows) && C.events) C.events.items = d.shows.filter(x => x && x.name);
     if(Array.isArray(d.gallery) && d.gallery.length && C.gallery){   // Site Gallery tab: newest photos first, then the built-in ones
-      const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '"');
+      const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       const url = v => /^https:\/\/[^\s"'<>]+$/i.test(String(v || '').trim()) ? String(v).trim() : '';
       const rows = d.gallery.map((x, i) => Object.assign({ i }, x)).filter(x => url(x.image) || url(x.before) || url(x.after))
         .sort((a, b) => ((Number(a.order) || 0) - (Number(b.order) || 0)) || (a.i - b.i));
@@ -3261,7 +3261,7 @@ let resetTerms = () => {};
   const $list = $box.firstChild;
   let input = null, items = [], active = -1, timer = 0, slowTimer = 0, seq = 0, sets = null, DB = null, dbLoading = null;
 
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '"', "'": '&#39;' })[c]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const words = text => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(Boolean).slice(0, 5);
   const keyOf = text => words(text).join(' ');
   // "charizard base 4" -> (name:charizard* OR set.name:charizard*) (name:base* OR set.name:base*) (number:4 OR set.printedTotal:4)
