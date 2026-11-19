@@ -10,7 +10,7 @@
  *  block to launch a client; the rest of the file is the engine.
  *
  *  Text conventions
- *   • Most text fields accept HTML (<b>, <a>, <br>). Escape & as &.
+ *   • Most text fields accept HTML (<b>, <a>, <br>). Escape & as &amp;.
  *   • Word tokens are filled in everywhere:
  *       {item} {items} {Item} {Items} {ITEM} {ITEMS}   → CONFIG.words
  *       {business}                                       → brand.name
@@ -42,7 +42,7 @@ const CONFIG = {
     logoWithWordmark: true,
     footerLogo: true,
     favicon: 'data:image/png;base64,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',
-    footerSummary: 'Card care & restoration · Houston, Texas · A PH Collectibles HTX company'
+    footerSummary: 'Card care &amp; restoration · Houston, Texas · A PH Collectibles HTX company'
   },
   words: { item: 'card', items: 'cards' },
 
@@ -92,7 +92,7 @@ const CONFIG = {
     image: '',
     lockup: { emblem: 'data:image/webp;base64,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', line1: 'Restoration', line2: 'Labs', by: 'by PH Collectibles HTX', alt: 'PH Restoration Labs logo' },
     headline: 'Straight out of H&#8209;Town.',
-    sub: 'Card care & restoration — cleaning, polish, pre-submission inspection and repair.',
+    sub: 'Card care &amp; restoration — cleaning, polish, pre-submission inspection and repair.',
     ctas: [
       { label: 'See pricing',     href: '#pricing', style: 'primary' },
       { label: 'Submit a {item}', href: '#submit',  style: 'outline' }
@@ -177,13 +177,13 @@ const CONFIG = {
       tag: 'INCLUDED',
       html: '<b>Every card starts with an inspection.</b> Before any work, PH checks and documents the card with before photos:' +
             '<ul><li><b>Surface</b> — debris, scratches, holo scratches, print lines or marks, stains and residue</li>' +
-            '<li><b>Edges & corners</b> — whitening and wear</li>' +
+            '<li><b>Edges &amp; corners</b> — whitening and wear</li>' +
             '<li><b>Structure</b> — dents or indents, creases, warping or bends</li></ul>' +
             'He then confirms the right service and your price before starting.'
     },
     groups: [
-      { label: 'Card care & restoration', surcharge: false, tiers: [
-        { title: 'Pre-Submission Clean + Light Polish & Inspection', price: 15,
+      { label: 'Card care &amp; restoration', surcharge: false, tiers: [
+        { title: 'Pre-Submission Clean + Light Polish &amp; Inspection', price: 15,
           desc: 'A careful clean and inspection for cards that are already in good shape and headed to a grading company. The goal is to remove anything a grader would mark down that isn’t actual damage.',
           includes: [
             '<b>Initial inspection</b> — surface, edges, corners and structure checked, condition documented with before photos',
@@ -328,7 +328,7 @@ const CONFIG = {
       missingItem: 'Please fill in the {item} name and service for each {item}.',
       missingName: 'Please fill in your name.',
       needContact: 'Please leave an email or phone number so we can reach you.',
-      needTerms:   'Please read the Terms & Conditions above and click I AGREE before submitting.',
+      needTerms:   'Please read the Terms &amp; Conditions above and click I AGREE before submitting.',
       uploading:   'Please wait for your photos to finish uploading before submitting.',
       successEmail:'Submitted {count}! Your reference number is <b>{ref}</b>. A confirmation email is on its way to {email} — please don’t ship your cards until PH contacts you. You can check progress anytime in Track Your Submission below.',
       successPhone:'Submitted {count}! Your reference number is <b>{ref}</b> — save it. PH will follow up by phone; please don’t ship your cards until he contacts you.',
@@ -344,11 +344,11 @@ const CONFIG = {
   /* Terms & Conditions and Waiver of Liability — modeled on Restored Rarity’s terms, adapted for PH (flat pricing, no value surcharges, show drop-off).
      Drafted Oct 2026 for PH to review; not legal advice. PH to confirm: 30-day damage-memory window, 7-day claims window, $5/card/month storage after 30 days, 90-day abandonment. */
   terms: {
-    "title": "Terms & Conditions and Waiver of Liability",
+    "title": "Terms &amp; Conditions and Waiver of Liability",
     "effectiveDate": "October 8, 2026",
     "intro": [
       "Please read carefully before submitting your request.",
-      "These Terms & Conditions and Waiver of Liability (“Terms”) are an agreement between you and {business}, the card care and restoration service of PH Collectibles HTX, Houston, Texas (“we,” “us”). They apply to every card you submit, whether shipped or handed off at a show or meetup.",
+      "These Terms &amp; Conditions and Waiver of Liability (“Terms”) are an agreement between you and {business}, the card care and restoration service of PH Collectibles HTX, Houston, Texas (“we,” “us”). They apply to every card you submit, whether shipped or handed off at a show or meetup.",
       "By clicking “I Agree” below and submitting a service request to {business}, you confirm that you have read, understand, and agree to these Terms."
     ],
     "sections": [
@@ -381,7 +381,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "4. Damage Memory & Long-Term Results",
+        "h": "4. Damage Memory &amp; Long-Term Results",
         "p": [
           "Trading cards are composed of layered materials that may retain “damage memory.”",
           "In some cases, a crease, bend, indentation, warp, lift, or other previously treated defect may partially or faintly reappear days, weeks, or months after service.",
@@ -401,7 +401,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "6. Grading & No Guarantee of Grade",
+        "h": "6. Grading &amp; No Guarantee of Grade",
         "p": [
           "Cleaning, restoration, pre-submission preparation, or any inspection does not guarantee any particular grade or grading outcome.",
           "Any grade estimate or opinion provided by {business} represents an opinion based on the observable condition of the card at the time and is not a promise.",
@@ -426,7 +426,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "9. Declared Card Values & Verification",
+        "h": "9. Declared Card Values &amp; Verification",
         "p": [
           "The value you enter on the submission form is your good-faith estimate of the card’s current market value in its present condition, before any service.",
           "All declared values are subject to verification by {business}. If a declared value does not reasonably reflect the card’s current market value, {business} may ask you to correct it, adjust its handling or shipping requirements, or decline the card.",
@@ -443,7 +443,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "11. Submission Requests & When to Ship",
+        "h": "11. Submission Requests &amp; When to Ship",
         "p": [
           "Submitting a service request does not mean you should immediately ship your cards.",
           "{business} coordinates incoming submissions so cards can be properly received, documented, inspected, and serviced. After submitting a request, you will receive confirmation that it has been received. {business} will then review your submission and contact you directly.",
@@ -452,7 +452,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "12. Initial Communication & Service Confirmation",
+        "h": "12. Initial Communication &amp; Service Confirmation",
         "p": [
           "Before you ship or hand off your cards, we will communicate with you to confirm relevant submission details.",
           "These may include requested services, card information, declared values, estimated pricing, estimated turnaround time, drop-off or shipping method and costs, packaging instructions, and any questions or concerns about the requested work.",
@@ -460,7 +460,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "13. In-Person Drop-Off & Pickup",
+        "h": "13. In-Person Drop-Off &amp; Pickup",
         "p": [
           "Cards may be dropped off in person at a show or an arranged Houston meetup. Please bring your reference number and have each card in a penny sleeve and top loader.",
           "{business}’s responsibility begins once your cards have been counted with you and matched to your reference number, and ends when they are handed back to you or to a person you authorize.",
@@ -509,7 +509,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "19. Additional Work & Customer Approval",
+        "h": "19. Additional Work &amp; Customer Approval",
         "p": [
           "We will not automatically perform additional chargeable work outside the agreed scope simply because additional damage is discovered.",
           "If additional work is recommended, we will explain what was discovered, the recommended work, and any change in price. Your approval will be obtained before any additional chargeable work is performed.",
@@ -526,7 +526,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "21. Cancellations & Refunds",
+        "h": "21. Cancellations &amp; Refunds",
         "p": [
           "You may cancel service on a card before work on it has begun; it will be returned and you pay only return shipping. Once work has begun, charges for work performed are due.",
           "<strong>Because results vary and services cannot be undone, completed work is not refundable</strong>, except as described in Section 23.",
@@ -534,7 +534,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "22. Unpaid & Unclaimed Cards",
+        "h": "22. Unpaid &amp; Unclaimed Cards",
         "p": [
           "If your cards are finished and you have not paid or arranged pickup or return <strong>within 30 days</strong> after we notify you, a storage fee of <strong>$5 per card per month</strong> (or part of a month) may apply.",
           "If your cards remain unpaid or unclaimed <strong>for 90 days</strong> after our first notice, and at least one further written notice has been sent to the email, phone, or address you provided, the cards will be considered abandoned. To the extent permitted by Texas law, we may then sell or otherwise dispose of them and apply any proceeds to amounts owed. Keeping your contact information current is your responsibility."
@@ -566,7 +566,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "26. Photography, Documentation & Marketing Use",
+        "h": "26. Photography, Documentation &amp; Marketing Use",
         "p": [
           "By submitting cards to {business}, you authorize {business} to photograph and/or record the submitted cards before, during, and after the service process.",
           "Photographs and recordings may be used for intake and condition documentation, service records and quality control, before-and-after comparisons, educational content, {business}’s website and portfolio, social media, advertising and promotional materials, and demonstrations of techniques and results.",
@@ -582,7 +582,7 @@ const CONFIG = {
         ]
       },
       {
-        "h": "28. Disputes & Governing Law",
+        "h": "28. Disputes &amp; Governing Law",
         "p": [
           "If you have a concern, please contact us first; we will try in good faith to resolve it informally within 30 days.",
           "These Terms are governed by the laws of the State of Texas, without regard to conflict-of-law rules. Any dispute not resolved informally will be brought only in the state courts located in Harris County, Texas (including justice court for small claims), and you consent to that venue."
@@ -600,8 +600,8 @@ const CONFIG = {
         ]
       }
     ],
-    "acknowledgment": "I have read, understand, and agree to the {business} Terms & Conditions and Waiver of Liability. I confirm that I am at least 18 (or a parent or guardian submitting for a minor) and that I own or am authorized to submit these cards. I understand that card cleaning, pressing, and restoration involve inherent risks; that treated defects may partially reappear over time; that specific restoration and grading results are not guaranteed; and that turnaround times vary. I understand that shipping costs are my responsibility and that I must wait for {business} to contact me and authorize shipment before sending my cards. I understand that declared values may be verified and do not establish a replacement or guaranteed value, that liability is limited as described in these Terms, that payment is due before cards are released, and that unpaid or unclaimed cards are subject to Section 22. I authorize {business} to perform the services I approve and acknowledge that submitted cards may be photographed and/or recorded and that this content may be used for documentation, website, social media, educational, portfolio, advertising, and promotional purposes in accordance with these Terms.",
-    "footnote": "By accepting above and submitting your request, you acknowledge that your electronic acceptance signifies your agreement to the {business} Terms & Conditions and Waiver of Liability in effect on the date of your submission.",
+    "acknowledgment": "I have read, understand, and agree to the {business} Terms &amp; Conditions and Waiver of Liability. I confirm that I am at least 18 (or a parent or guardian submitting for a minor) and that I own or am authorized to submit these cards. I understand that card cleaning, pressing, and restoration involve inherent risks; that treated defects may partially reappear over time; that specific restoration and grading results are not guaranteed; and that turnaround times vary. I understand that shipping costs are my responsibility and that I must wait for {business} to contact me and authorize shipment before sending my cards. I understand that declared values may be verified and do not establish a replacement or guaranteed value, that liability is limited as described in these Terms, that payment is due before cards are released, and that unpaid or unclaimed cards are subject to Section 22. I authorize {business} to perform the services I approve and acknowledge that submitted cards may be photographed and/or recorded and that this content may be used for documentation, website, social media, educational, portfolio, advertising, and promotional purposes in accordance with these Terms.",
+    "footnote": "By accepting above and submitting your request, you acknowledge that your electronic acceptance signifies your agreement to the {business} Terms &amp; Conditions and Waiver of Liability in effect on the date of your submission.",
     "scrollHint": "Read to the end to continue",
     "reachedEnd": "You’ve reached the end — you can now accept.",
     "agreeLabel": "I AGREE",
@@ -645,14 +645,14 @@ const CONFIG = {
         'Submit the form first and choose <b>Drop off in person</b>, then bring your cards with your reference number, in penny sleeves and top loaders. Finished cards can be picked up at a later show, at a Houston meetup, or shipped back.' ] },
       { q: 'How do I submit cards?', a: ['Fill in the submission form above — one entry per card, with the set, card number, declared value and any areas of concern. You’ll get a confirmation email with your reference number.'] },
       { q: 'Which service do I need?', a: [
-        '<b>Pre-Submission Clean + Light Polish & Inspection ($15)</b> — a card that’s already in good shape and headed to grading.',
+        '<b>Pre-Submission Clean + Light Polish &amp; Inspection ($15)</b> — a card that’s already in good shape and headed to grading.',
         '<b>Clean + Restoration ($20)</b> — a raw card with residue, light surface marks or slight curl.',
         '<b>Basic Restoration ($30)</b> — warping or bends, dents, and edge or corner wear.',
         '<b>Advanced Restoration ($40)</b> — creases, heavier damage, or anything that needs more than one round.',
         'Not sure? Pick your best guess — every card is inspected first and we’ll confirm the right service and price with you.' ] },
       { q: 'What do you check during inspection?', a: [
         'Every card is inspected and its condition documented with before photos before any work starts. PH checks:',
-        '<b>Surface</b> — debris, scratches, holo scratches, print lines or marks, stains and residue.<br><b>Edges & corners</b> — whitening and wear.<br><b>Structure</b> — dents or indents, creases, warping or bends.',
+        '<b>Surface</b> — debris, scratches, holo scratches, print lines or marks, stains and residue.<br><b>Edges &amp; corners</b> — whitening and wear.<br><b>Structure</b> — dents or indents, creases, warping or bends.',
         'If what he finds changes the service or price, he’ll confirm with you before doing the work.' ] },
       { q: 'Will restoration improve my grade?', a: ['Results vary by card and condition. Cleaning, polishing or restoration does not guarantee a condition or grading improvement, and third-party grading companies may identify repairs or alterations that can affect grading eligibility.'] },
       { q: 'How do I get my cards back?', a: ['Pick them up at a show or Houston meetup, or have them shipped back. Finished cards are re-sleeved in a new penny sleeve and top loader.'] },
@@ -660,7 +660,7 @@ const CONFIG = {
     ]
   },
   contact: {
-    heading: 'Follow & contact',
+    heading: 'Follow &amp; contact',
     intro: 'Pickups, show dates and new arrivals.',
     social: { show: true, handle: '@ph_collectibles_htx', url: 'https://www.instagram.com/ph_collectibles_htx', sub: 'Follow on Instagram →' },
     email: 'phcollectibleshtx@gmail.com',
@@ -712,7 +712,7 @@ const CONFIG = {
 
   const w = CONFIG.words, cap = s => s.charAt(0).toUpperCase() + s.slice(1);
   const fill = s => String(s || '').replace(/\{item\}/g, w.item).replace(/\{items\}/g, w.items).replace(/\{business\}/g, CONFIG.brand.name);
-  document.title = fill(CONFIG.meta.title).replace(/&/g, '&');
+  document.title = fill(CONFIG.meta.title).replace(/&amp;/g, '&');
   const md = document.createElement('meta'); md.name = 'description'; md.content = fill(CONFIG.meta.description); document.head.appendChild(md);
   let fav = CONFIG.brand.favicon;
   if(!fav){
@@ -1908,7 +1908,7 @@ function T(s){
     .replace(/\{fallback\}/g, (C.contact && C.contact.fallback) || 'contact us');
 }
 function esc(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
-function attr(s){ return String(s == null ? '' : s).replace(/&/g, '&').replace(/"/g, '"').replace(/</g, '<'); }
+function attr(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '"').replace(/</g, '&lt;'); }
 function plain(html){ const d = document.createElement('textarea'); d.innerHTML = String(html == null ? '' : html); return d.value.replace(/<[^>]+>/g, ''); }
 const money = n => C.pricing.currency + Number(n).toLocaleString('en-US');
 const ENDPOINT = (C.backend.endpoint || '').trim();
@@ -3171,7 +3171,7 @@ let resetTerms = () => {};
     }
     if(d.seeded && Array.isArray(d.shows) && C.events) C.events.items = d.shows.filter(x => x && x.name);
     if(Array.isArray(d.gallery) && d.gallery.length && C.gallery){   // Site Gallery tab: newest photos first, then the built-in ones
-      const esc = v => String(v == null ? '' : v).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+      const esc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '"');
       const url = v => /^https:\/\/[^\s"'<>]+$/i.test(String(v || '').trim()) ? String(v).trim() : '';
       const rows = d.gallery.map((x, i) => Object.assign({ i }, x)).filter(x => url(x.image) || url(x.before) || url(x.after))
         .sort((a, b) => ((Number(a.order) || 0) - (Number(b.order) || 0)) || (a.i - b.i));
@@ -3261,7 +3261,7 @@ let resetTerms = () => {};
   const $list = $box.firstChild;
   let input = null, items = [], active = -1, timer = 0, slowTimer = 0, seq = 0, sets = null, DB = null, dbLoading = null;
 
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#39;' })[c]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '"', "'": '&#39;' })[c]);
   const words = text => text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(Boolean).slice(0, 5);
   const keyOf = text => words(text).join(' ');
   // "charizard base 4" -> (name:charizard* OR set.name:charizard*) (name:base* OR set.name:base*) (number:4 OR set.printedTotal:4)
