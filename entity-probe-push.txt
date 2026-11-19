@@ -1,0 +1,14 @@
+1 AMP &amp;
+2 LT &lt;
+3 GT &gt;
+4 QUOT &quot;
+5 APOS &apos;
+6 NUM39 &#39;
+7 NUM34 &#34;
+8 AMPAMP &amp;amp;
+9 AMPLT &amp;lt;
+10 AMPQUOT &amp;quot;
+11 AMPAMPQUOT &amp;amp;quot;
+12 AMPAMPAMPQUOT &amp;amp;amp;quot;
+13 RAWAMP &
+14 RAWQUOTE "
