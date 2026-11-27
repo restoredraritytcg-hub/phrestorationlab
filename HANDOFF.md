@@ -1,4 +1,4 @@
-# PH Restoration Labs
+# PH Restoration Lab
 
 Public site for https://phrestorationlab.com/.
 
